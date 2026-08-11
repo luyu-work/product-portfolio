@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Кейс о проектировании конструктора сторисов, который ускорил создание сценариев и снизил количество ошибок." />
+    <meta name="theme-color" content="#141414" />
     <title>Конструктор сторисов</title>
     <link rel="icon" href="src/icons/favicon16.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -13,17 +15,12 @@
     />
     <link rel="stylesheet" href="styles.css" />
     <link rel="prefetch" href="./index.html" />
+    <script src="components.js" defer></script>
+    <script src="script.js" defer></script>
   </head>
   <body class="page case-study">
     <main class="main anchor-top" id="story-builder-top">
-      <header class="header anim-load anim-delay-1">
-        <a href="./index.html" class="back-button">
-          <div class="back-button-icon">
-            <img src="./src/icons/back.svg" alt="" width="12" height="12" />
-          </div>
-          <span class="back-button-text">На главную</span>
-        </a>
-      </header>
+      <header class="header anim-load anim-delay-1" data-component="case-header"></header>
       <div class="story-content anim-load anim-delay-2">
         <h1 class="story-content__title">Конструктор сторисов</h1>
         <p class="story-content__description">
@@ -316,94 +313,14 @@
         <p class="story-section__description">Этот проект ещё раз подтвердил, что в инструментах для non-designer необходима мгновенная видимость состояния. Следующим шагом я вижу добавление возможности редактировать переходы прямо из глобального вида — это может ещё сильнее сократить время работы</p>
       </section>
 
-      <div class="action-block">
-        <a href="./index.html" class="back-button">
-          <div class="back-button-icon">
-            <img src="./src/icons/back.svg" alt="" width="12" height="12" />
-          </div>
-          <span class="back-button-text">На главную</span>
-        </a>
-        <button class="back-button scroll-to-top" type="button">
-          <span class="back-button-icon">
-            <img src="./src/icons/up.svg" alt="" width="12" height="12" />
-          </span>
-          <span class="back-button-text">Наверх</span>
-        </button>
-      </div>
-      <div class="footer">
-        <div class="footer__year">
-          <div class="footer__year-sign">©</div>
-          <div class="footer__year-value">2026</div>
-        </div>
-        <div class="footer__note">Сделано мной для всех, IE</div>
-      </div>
+      <div class="action-block" data-component="case-actions"></div>
+      <footer class="footer" data-component="site-footer"></footer>
     </main>
     <nav
       class="page-anchor anim-load anim-delay-2"
       aria-label="Навигация по разделам"
       data-anchor-nav
-    >
-      <div class="page-anchor__line" aria-hidden="true"></div>
-      <div class="page-anchor__active-line" aria-hidden="true"></div>
-      <ul class="page-anchor__list">
-        <li class="page-anchor__list-item">
-          <a
-            href="#story-builder-top"
-            class="page-anchor__item page-anchor__item--active"
-            data-anchor-link
-            data-target-id="story-builder-top"
-          >Превью</a>
-        </li>
-        <li class="page-anchor__list-item">
-          <a
-            href="#sb-context"
-            class="page-anchor__item"
-            data-anchor-link
-            data-target-id="sb-context"
-          >Контекст</a>
-        </li>
-        <li class="page-anchor__list-item">
-          <a
-            href="#sb-problem"
-            class="page-anchor__item"
-            data-anchor-link
-            data-target-id="sb-problem"
-          >Проблема</a>
-        </li>
-        <li class="page-anchor__list-item">
-          <a
-            href="#sb-role"
-            class="page-anchor__item"
-            data-anchor-link
-            data-target-id="sb-role"
-          >Роль</a>
-        </li>
-        <li class="page-anchor__list-item">
-          <a
-            href="#sb-approach"
-            class="page-anchor__item"
-            data-anchor-link
-            data-target-id="sb-approach"
-          >Подход</a>
-        </li>
-        <li class="page-anchor__list-item">
-          <a
-            href="#sb-solution"
-            class="page-anchor__item"
-            data-anchor-link
-            data-target-id="sb-solution"
-          >Решение</a>
-        </li>
-        <li class="page-anchor__list-item">
-          <a
-            href="#sb-result"
-            class="page-anchor__item"
-            data-anchor-link
-            data-target-id="sb-result"
-          >Итог</a>
-        </li>
-      </ul>
-    </nav>
-    <script src="script.js"></script>
+      data-component="case-anchor"
+    ></nav>
   </body>
 </html>

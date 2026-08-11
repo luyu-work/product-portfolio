@@ -1,13 +1,14 @@
-/* ==========================================================================
-   Base
-   ========================================================================== */
-
 *,
 *::before,
 *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+:root {
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-balanced: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 html,
@@ -61,14 +62,9 @@ body {
   align-items: center;
 }
 
-/* ==========================================================================
-   Home
-   ========================================================================== */
-
 .home {
   align-self: stretch;
-  padding-left: 40px;
-  padding-right: 40px;
+  padding-inline: 40px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -104,14 +100,10 @@ body {
   gap: 8px;
 }
 
-.contact-button {
-  cursor: pointer;
-  height: 40px;
+.contact-button,
+.back-button {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 0 16px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 100px;
@@ -120,20 +112,31 @@ body {
   font: inherit;
   color: inherit;
   text-decoration: none;
-  transition: background 0.2s ease;
+  cursor: pointer;
+  transition: background-color 0.4s var(--ease-smooth);
 }
 
-.contact-button:hover {
+.contact-button:hover,
+.back-button:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.contact-button:active {
+.contact-button:active,
+.back-button:active {
   background: rgba(255, 255, 255, 0.2);
 }
 
-.contact-button:focus-visible {
+.contact-button:focus-visible,
+.back-button:focus-visible {
   outline: 2px solid rgba(255, 255, 255, 0.5);
   outline-offset: 2px;
+}
+
+.contact-button {
+  height: 40px;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
 }
 
 .contact-button--icon {
@@ -158,14 +161,9 @@ body {
   flex-shrink: 0;
 }
 
-/* ==========================================================================
-   Projects
-   ========================================================================== */
-
 .projects {
   align-self: stretch;
-  padding-left: 40px;
-  padding-right: 40px;
+  padding-inline: 40px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -194,15 +192,19 @@ body {
   border-radius: 24px;
   text-decoration: none;
   color: inherit;
-  transition: background 0.2s ease;
+  transition:
+    background-color 0.5s var(--ease-smooth),
+    transform 0.5s var(--ease-smooth);
 }
 
 .project-card:not(.project-card--more):hover {
   background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-2px);
 }
 
 .project-card:not(.project-card--more):active {
   background: rgba(255, 255, 255, 0.07);
+  transform: translateY(0) scale(0.995);
 }
 
 .project-card:focus-visible {
@@ -259,6 +261,11 @@ body {
   background-repeat: no-repeat;
   background-size: cover;
   border-radius: 12px;
+  transition: transform 0.65s var(--ease-smooth);
+}
+
+.project-card:not(.project-card--more):hover .project-card__image {
+  transform: scale(1.012);
 }
 
 .project-card--more {
@@ -277,10 +284,6 @@ body {
   line-height: 1.4;
   letter-spacing: 0.2px;
 }
-
-/* ==========================================================================
-   Work list
-   ========================================================================== */
 
 .work-list {
   align-self: stretch;
@@ -306,6 +309,7 @@ body {
   flex: 1 1 0;
   color: rgba(255, 255, 255, 0.5);
   font-size: 16px;
+  font-weight: 400;
   line-height: 1.4;
 }
 
@@ -315,6 +319,9 @@ body {
   display: flex;
   flex-direction: column;
   border-top: 1px solid rgba(255, 255, 255, 0.03);
+  transition:
+    background-color 0.5s var(--ease-smooth),
+    border-color 0.5s var(--ease-smooth);
 }
 
 .work-list__item:last-child {
@@ -347,7 +354,7 @@ body {
   font-weight: 300;
   letter-spacing: 0.2px;
   line-height: 1.4;
-  transition: color 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: color 0.5s var(--ease-smooth);
 }
 
 .work-list__company {
@@ -368,8 +375,9 @@ body {
   align-self: flex-start;
   width: auto;
   max-width: none;
-  transition: color 0.3s cubic-bezier(0.65, 0, 0.35, 1),
-    text-decoration-color 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+  transition:
+    color 0.5s var(--ease-smooth),
+    text-decoration-color 0.5s var(--ease-smooth);
 }
 
 .work-list__company-link:hover {
@@ -396,7 +404,7 @@ body {
   line-height: 1.4;
   font-weight: 300;
   letter-spacing: 0.2px;
-  transition: color 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: color 0.5s var(--ease-smooth);
 }
 
 .work-list__position-suffix {
@@ -413,7 +421,7 @@ body {
   border: none;
   background: transparent;
   cursor: pointer;
-  transition: transform 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: transform 0.65s var(--ease-balanced);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -422,7 +430,7 @@ body {
   width: 100%;
   height: 100%;
   color: rgba(255, 255, 255, 0.3);
-  transition: color 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: color 0.5s var(--ease-smooth);
 }
 
 .work-list__item.expanded .work-list__toggle {
@@ -436,9 +444,9 @@ body {
   opacity: 0;
   padding-top: 0;
   transition:
-    grid-template-rows 0.4s cubic-bezier(0.65, 0, 0.35, 1),
-    padding-top 0.4s cubic-bezier(0.65, 0, 0.35, 1),
-    opacity 0.4s cubic-bezier(0.65, 0, 0.35, 1);
+    grid-template-rows 0.65s var(--ease-balanced),
+    padding-top 0.65s var(--ease-balanced),
+    opacity 0.5s var(--ease-balanced);
 }
 
 .work-list__item-content > * {
@@ -466,32 +474,8 @@ body {
 .back-button {
   height: 32px;
   padding: 1px 12px 0 8px;
-  display: inline-flex;
   justify-content: flex-start;
-  align-items: center;
   gap: 4px;
-  border-radius: 100px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  appearance: none;
-  -webkit-appearance: none;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-
-.back-button:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.back-button:active {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.back-button:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.5);
-  outline-offset: 2px;
 }
 
 .link-button-text,
@@ -506,7 +490,9 @@ body {
 
 .link-button-text {
   padding-top: 1px;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.42s var(--ease-smooth),
+    transform 0.42s var(--ease-smooth);
 }
 
 .link-button-icon {
@@ -518,7 +504,9 @@ body {
 .link-button-icon img {
   width: 100%;
   height: 100%;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.42s var(--ease-smooth),
+    transform 0.42s var(--ease-smooth);
   opacity: 1;
   transform: translateX(0) scale(1);
 }
@@ -559,8 +547,7 @@ body {
 }
 
 .slide-in-left {
-  opacity: 1;
-  transform: translateX(0);
+  animation: slideInLeft 0.42s var(--ease-smooth) forwards;
 }
 
 .zoom-out {
@@ -574,11 +561,22 @@ body {
 }
 
 .link-button-icon img.zoom-out {
-  animation: zoomOut 0.3s cubic-bezier(0.4, 0, 1, 1) forwards;
+  animation: zoomOut 0.42s var(--ease-smooth) forwards;
 }
 
 .link-button-icon img.zoom-in {
-  animation: zoomIn 0.3s cubic-bezier(0, 0.6, 0.2, 1) forwards;
+  animation: zoomIn 0.42s var(--ease-smooth) forwards;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes zoomOut {
@@ -614,15 +612,11 @@ body {
   }
 }
 
-/* ==========================================================================
-   Animations
-   ========================================================================== */
-
 .anim-load {
   opacity: 0;
   animation-name: fadeInUp;
-  animation-duration: 0.4s;
-  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  animation-duration: 0.7s;
+  animation-timing-function: var(--ease-smooth);
   animation-fill-mode: forwards;
 }
 
@@ -639,10 +633,6 @@ body.no-anim .anim-load {
   opacity: 1 !important;
   transform: none !important;
 }
-
-/* ==========================================================================
-   Case study pages
-   ========================================================================== */
 
 .case-study .main {
   gap: 40px;
@@ -797,8 +787,7 @@ body.no-anim .anim-load {
 
 .image-block {
   align-self: stretch;
-  padding-left: 40px;
-  padding-right: 40px;
+  padding-inline: 40px;
   padding-bottom: 8px;
   display: inline-flex;
   flex-direction: column;
@@ -866,8 +855,7 @@ body.no-anim .anim-load {
 
 .preview-block {
   align-self: stretch;
-  padding-left: 40px;
-  padding-right: 40px;
+  padding-inline: 40px;
   display: inline-flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -881,6 +869,12 @@ body.no-anim .anim-load {
   height: auto;
   max-width: 100%;
   display: block;
+}
+
+.image-block[role="button"]:focus-visible,
+.preview-block[role="button"]:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: -2px;
 }
 
 .image-modal {
@@ -1037,8 +1031,7 @@ body.image-modal-open {
 
 .job-stories-list {
   align-self: stretch;
-  padding-left: 40px;
-  padding-right: 40px;
+  padding-inline: 40px;
   display: inline-flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -1218,6 +1211,10 @@ body.image-modal-open {
 }
 
 @media (hover: hover) {
+  .work-list__item:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
   .work-list__item-header:hover .work-list__date {
     color: #ffffff;
   }
@@ -1232,7 +1229,6 @@ body.image-modal-open {
   }
 }
 
-/* Provide clean tap feedback on touch devices without leaving sticky "press" styles after release */
 @media (hover: none) {
   .work-list__item-header:active .work-list__date,
   .work-list__item-header:active .work-list__position {

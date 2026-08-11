@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Портфолио UI/UX-дизайнера Данила Харисова: B2B, B2G и B2E-продукты, кейсы и опыт работы." />
+    <meta name="theme-color" content="#141414" />
     <title>UI/UXarisov</title>
     <link rel="icon" href="src/icons/favicon16.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -14,6 +16,8 @@
     <link rel="stylesheet" href="styles.css" />
     <link rel="prefetch" href="./story-builder.html" />
     <link rel="prefetch" href="./agreement-card.html" />
+    <script src="components.js" defer></script>
+    <script src="script.js" defer></script>
   </head>
   <body class="page">
     <main class="main">
@@ -233,14 +237,7 @@
         </div>
       </section>
 
-      <footer class="footer anim-load anim-delay-5">
-        <div class="footer__year">
-          <div class="footer__year-sign">©</div>
-          <div class="footer__year-value">2026</div>
-        </div>
-        <div class="footer__note">Сделано мной для всех, IE</div>
-      </footer>
+      <footer class="footer anim-load anim-delay-5" data-component="site-footer"></footer>
     </main>
-    <script src="script.js"></script>
   </body>
 </html>

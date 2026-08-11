@@ -1,6 +1,7 @@
 const EMAIL_ADDRESS = "lubu.lanfen@gmail.com";
 const MAIL_ICON_PATH = "./src/icons/mail.svg";
 const SUCCESS_ICON_PATH = "./src/icons/success.svg";
+const COPY_STATE_TRANSITION_MS = 420;
 const MOBILE_PADDING_BREAKPOINT = 600;
 const PAGE_ANCHOR_BREAKPOINT = 960;
 const PAGE_ANCHOR_SIDE_OFFSET = 40;
@@ -60,6 +61,111 @@ const createRafScheduler = (callback) => {
   };
 };
 
+const createSamplingContext = (canvasSize = 12) => {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+
+  if (context) {
+    canvas.width = canvasSize;
+    canvas.height = canvasSize;
+  }
+
+  return context;
+};
+
+const sampleMediaLuminanceAtPoint = (
+  media,
+  clientX,
+  clientY,
+  context,
+  { canvasSize = 12, sampleAreaSize = 24 } = {}
+) => {
+  if (!context) return null;
+
+  const mediaRect = media.getBoundingClientRect();
+  if (!mediaRect.width || !mediaRect.height) return null;
+
+  const offsetX = clientX - mediaRect.left;
+  const offsetY = clientY - mediaRect.top;
+
+  if (
+    offsetX < 0 ||
+    offsetY < 0 ||
+    offsetX > mediaRect.width ||
+    offsetY > mediaRect.height
+  ) {
+    return null;
+  }
+
+  let sourceWidth = 0;
+  let sourceHeight = 0;
+
+  if (media instanceof HTMLImageElement) {
+    if (!media.complete || !media.naturalWidth || !media.naturalHeight) return null;
+    sourceWidth = media.naturalWidth;
+    sourceHeight = media.naturalHeight;
+  } else if (media instanceof HTMLVideoElement) {
+    if (!media.videoWidth || !media.videoHeight || media.readyState < 2) return null;
+    sourceWidth = media.videoWidth;
+    sourceHeight = media.videoHeight;
+  } else {
+    return null;
+  }
+
+  const sourceCenterX = (offsetX / mediaRect.width) * sourceWidth;
+  const sourceCenterY = (offsetY / mediaRect.height) * sourceHeight;
+  const sourceSampleWidth = Math.min(
+    sourceWidth,
+    Math.max(1, Math.round((sampleAreaSize / mediaRect.width) * sourceWidth))
+  );
+  const sourceSampleHeight = Math.min(
+    sourceHeight,
+    Math.max(1, Math.round((sampleAreaSize / mediaRect.height) * sourceHeight))
+  );
+  const sourceX = Math.max(
+    0,
+    Math.min(sourceWidth - sourceSampleWidth, sourceCenterX - sourceSampleWidth / 2)
+  );
+  const sourceY = Math.max(
+    0,
+    Math.min(sourceHeight - sourceSampleHeight, sourceCenterY - sourceSampleHeight / 2)
+  );
+
+  try {
+    context.clearRect(0, 0, canvasSize, canvasSize);
+    context.drawImage(
+      media,
+      sourceX,
+      sourceY,
+      sourceSampleWidth,
+      sourceSampleHeight,
+      0,
+      0,
+      canvasSize,
+      canvasSize
+    );
+
+    const imageData = context.getImageData(0, 0, canvasSize, canvasSize).data;
+    let weightedLuminanceSum = 0;
+    let alphaSum = 0;
+
+    for (let index = 0; index < imageData.length; index += 4) {
+      const red = imageData[index];
+      const green = imageData[index + 1];
+      const blue = imageData[index + 2];
+      const alpha = imageData[index + 3] / 255;
+
+      weightedLuminanceSum += (0.2126 * red + 0.7152 * green + 0.0722 * blue) * alpha;
+      alphaSum += alpha;
+    }
+
+    return alphaSum ? weightedLuminanceSum / alphaSum : null;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
 let pageLifecycle = new AbortController();
 
 const resetPageLifecycle = () => {
@@ -106,15 +212,12 @@ const easeInOutCubic = (t, b, c, d) => {
   return (c / 2) * (time * time * time + 2) + b;
 };
 
-const smoothScrollToY = (targetY, duration = 360) => {
+const smoothScrollToY = (targetY, duration = 700) => {
   const safeTargetY = Math.max(targetY, 0);
   const start = window.scrollY;
   const distance = safeTargetY - start;
 
-  if (
-    Math.abs(distance) < 1 ||
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  ) {
+  if (Math.abs(distance) < 1) {
     window.scrollTo(0, safeTargetY);
     return;
   }
@@ -181,7 +284,7 @@ function setupCopyEmailButton() {
   const animateButtonState = async (text, iconPath) => {
     textEl.classList.add("slide-out-right");
     iconEl.classList.add("zoom-out");
-    await Promise.all([sleep(300), preloadIcon(iconPath)]);
+    await Promise.all([sleep(COPY_STATE_TRANSITION_MS), preloadIcon(iconPath)]);
 
     textEl.textContent = text;
     if (iconEl.getAttribute("src") !== iconPath) {
@@ -191,7 +294,7 @@ function setupCopyEmailButton() {
     iconEl.classList.remove("zoom-out");
     textEl.classList.add("slide-in-left");
     iconEl.classList.add("zoom-in");
-    await sleep(300);
+    await sleep(COPY_STATE_TRANSITION_MS);
 
     textEl.classList.remove("slide-in-left");
     iconEl.classList.remove("zoom-in");
@@ -317,15 +420,7 @@ function setupScrollToTop() {
 
   if (!scrollBtn || !actionBlock || !mainContainer) return;
 
-  const contrastCanvas = document.createElement("canvas");
-  const contrastContext = contrastCanvas.getContext("2d", {
-    willReadFrequently: true,
-  });
-
-  if (contrastContext) {
-    contrastCanvas.width = CONTRAST_SAMPLE_CANVAS_SIZE;
-    contrastCanvas.height = CONTRAST_SAMPLE_CANVAS_SIZE;
-  }
+  const contrastContext = createSamplingContext(CONTRAST_SAMPLE_CANVAS_SIZE);
 
   const isIOSWebKit = () => {
     const userAgent = navigator.userAgent || "";
@@ -377,119 +472,6 @@ function setupScrollToTop() {
     return null;
   };
 
-  const getMediaLuminanceAtPoint = (media, clientX, clientY) => {
-    if (!contrastContext) return null;
-
-    const mediaRect = media.getBoundingClientRect();
-    if (!mediaRect.width || !mediaRect.height) return null;
-
-    const offsetX = clientX - mediaRect.left;
-    const offsetY = clientY - mediaRect.top;
-
-    if (
-      offsetX < 0 ||
-      offsetY < 0 ||
-      offsetX > mediaRect.width ||
-      offsetY > mediaRect.height
-    ) {
-      return null;
-    }
-
-    let sourceWidth = 0;
-    let sourceHeight = 0;
-
-    if (media instanceof HTMLImageElement) {
-      if (!media.complete || !media.naturalWidth || !media.naturalHeight) {
-        return null;
-      }
-
-      sourceWidth = media.naturalWidth;
-      sourceHeight = media.naturalHeight;
-    } else if (media instanceof HTMLVideoElement) {
-      if (!media.videoWidth || !media.videoHeight || media.readyState < 2) {
-        return null;
-      }
-
-      sourceWidth = media.videoWidth;
-      sourceHeight = media.videoHeight;
-    } else {
-      return null;
-    }
-
-    const sourceCenterX = (offsetX / mediaRect.width) * sourceWidth;
-    const sourceCenterY = (offsetY / mediaRect.height) * sourceHeight;
-    const sourceSampleWidth = Math.min(
-      sourceWidth,
-      Math.max(
-        1,
-        Math.round((CONTRAST_SAMPLE_AREA_SIZE / mediaRect.width) * sourceWidth)
-      )
-    );
-    const sourceSampleHeight = Math.min(
-      sourceHeight,
-      Math.max(
-        1,
-        Math.round((CONTRAST_SAMPLE_AREA_SIZE / mediaRect.height) * sourceHeight)
-      )
-    );
-    const sourceX = Math.max(
-      0,
-      Math.min(sourceWidth - sourceSampleWidth, sourceCenterX - sourceSampleWidth / 2)
-    );
-    const sourceY = Math.max(
-      0,
-      Math.min(sourceHeight - sourceSampleHeight, sourceCenterY - sourceSampleHeight / 2)
-    );
-
-    try {
-      contrastContext.clearRect(
-        0,
-        0,
-        CONTRAST_SAMPLE_CANVAS_SIZE,
-        CONTRAST_SAMPLE_CANVAS_SIZE
-      );
-      contrastContext.drawImage(
-        media,
-        sourceX,
-        sourceY,
-        sourceSampleWidth,
-        sourceSampleHeight,
-        0,
-        0,
-        CONTRAST_SAMPLE_CANVAS_SIZE,
-        CONTRAST_SAMPLE_CANVAS_SIZE
-      );
-
-      const imageData = contrastContext.getImageData(
-        0,
-        0,
-        CONTRAST_SAMPLE_CANVAS_SIZE,
-        CONTRAST_SAMPLE_CANVAS_SIZE
-      ).data;
-
-      let weightedLuminanceSum = 0;
-      let alphaSum = 0;
-
-      for (let index = 0; index < imageData.length; index += 4) {
-        const red = imageData[index];
-        const green = imageData[index + 1];
-        const blue = imageData[index + 2];
-        const alpha = imageData[index + 3] / 255;
-        const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
-
-        weightedLuminanceSum += luminance * alpha;
-        alphaSum += alpha;
-      }
-
-      if (!alphaSum) return null;
-
-      return weightedLuminanceSum / alphaSum;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-  };
-
   const updateScrollButtonContrast = () => {
     const isFallbackMode = scrollBtn.classList.contains("scroll-to-top--fallback");
     const isVisible =
@@ -513,7 +495,10 @@ function setupScrollToTop() {
         const media = getUnderlyingMediaAtPoint(x, y);
         if (!media) return null;
 
-        return getMediaLuminanceAtPoint(media, x, y);
+        return sampleMediaLuminanceAtPoint(media, x, y, contrastContext, {
+          canvasSize: CONTRAST_SAMPLE_CANVAS_SIZE,
+          sampleAreaSize: CONTRAST_SAMPLE_AREA_SIZE,
+        });
       })
       .filter((value) => typeof value === "number");
 
@@ -618,7 +603,6 @@ function setupPageAnchorNav() {
   };
 
   const getCurrentItem = () => {
-    // === Original logic (unchanged) for ALL items except the very last one ===
     const threshold = window.scrollY + PAGE_ANCHOR_STICKY_TOP + 80;
     let currentItem = items[0];
 
@@ -628,22 +612,19 @@ function setupPageAnchorNav() {
       }
     });
 
-    // === Special override ONLY for the last navigation item (e.g. "Итог" / #ac-result) ===
-    // Activate the last item as soon as its заголовок reaches the center of the screen.
-    // This allows the final short section to become active even when its container top
-    // never reaches the normal top threshold because there's not enough content below it.
     if (items.length > 1) {
       const lastItem = items[items.length - 1];
       const lastTarget = lastItem.target;
 
-      // Use the actual heading element inside the last section for "in the center of the screen" check
       const lastHeading =
         lastTarget.querySelector(".story-section__title, .story-content__title, h1, h2, h3") ||
         lastTarget;
 
-      const centerThreshold = window.scrollY + (window.innerHeight || 800) / 2;
+      const centerThreshold = (window.innerHeight || 800) / 2;
+      const reachedPageEnd =
+        window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 1;
 
-      if (lastHeading.offsetTop <= centerThreshold) {
+      if (lastHeading.getBoundingClientRect().top <= centerThreshold || reachedPageEnd) {
         currentItem = lastItem;
       }
     }
@@ -720,8 +701,6 @@ function getResultMobileSrc(src) {
 }
 
 function setupResultImageResponsive() {
-  // Special handling for ".image-block.result" (d-result in agreement-card, s-result in story-builder).
-  // On screens < 600px we serve mobile-optimized assets for both the visible preview and the full-size modal.
   const resultBlock = document.querySelector(".image-block.result");
   if (!resultBlock) return;
 
@@ -744,12 +723,10 @@ function setupResultImageResponsive() {
     const smallSrc = isMobile ? MOBILE_SMALL_SRC : DESKTOP_SMALL_SRC;
     const fullSrc = isMobile ? MOBILE_FULL_SRC : DESKTOP_FULL_SRC;
 
-    // Swap the visible thumbnail image
     if (img.getAttribute("src") !== smallSrc) {
       img.src = smallSrc;
     }
 
-    // Swap the data-full-src so that clicking to open the full modal loads the correct high-res version
     if (resultBlock.getAttribute("data-full-src") !== fullSrc) {
       resultBlock.setAttribute("data-full-src", fullSrc);
     }
@@ -757,10 +734,8 @@ function setupResultImageResponsive() {
     lastIsMobile = isMobile;
   };
 
-  // Initial setup based on current viewport
   updateSources();
 
-  // Keep in sync when the window is resized across the breakpoint
   let resizeScheduled = false;
   window.addEventListener(
     "resize",
@@ -782,96 +757,6 @@ const MODAL_SWIPE_DISMISS_MIN_DISTANCE = 72;
 const MODAL_IMAGE_MIN_ZOOM = 1;
 const MODAL_IMAGE_MAX_ZOOM = 4;
 
-const sampleImageLuminanceAtPoint = (
-  image,
-  clientX,
-  clientY,
-  context,
-  canvasSize = 12
-) => {
-  if (!context || !(image instanceof HTMLImageElement)) return null;
-  if (!image.complete || !image.naturalWidth || !image.naturalHeight) return null;
-
-  const mediaRect = image.getBoundingClientRect();
-  if (!mediaRect.width || !mediaRect.height) return null;
-
-  const offsetX = clientX - mediaRect.left;
-  const offsetY = clientY - mediaRect.top;
-
-  if (
-    offsetX < 0 ||
-    offsetY < 0 ||
-    offsetX > mediaRect.width ||
-    offsetY > mediaRect.height
-  ) {
-    return null;
-  }
-
-  const sourceWidth = image.naturalWidth;
-  const sourceHeight = image.naturalHeight;
-  const sourceCenterX = (offsetX / mediaRect.width) * sourceWidth;
-  const sourceCenterY = (offsetY / mediaRect.height) * sourceHeight;
-  const sourceSampleWidth = Math.min(
-    sourceWidth,
-    Math.max(
-      1,
-      Math.round((MODAL_CLOSE_SAMPLE_AREA_SIZE / mediaRect.width) * sourceWidth)
-    )
-  );
-  const sourceSampleHeight = Math.min(
-    sourceHeight,
-    Math.max(
-      1,
-      Math.round((MODAL_CLOSE_SAMPLE_AREA_SIZE / mediaRect.height) * sourceHeight)
-    )
-  );
-  const sourceX = Math.max(
-    0,
-    Math.min(sourceWidth - sourceSampleWidth, sourceCenterX - sourceSampleWidth / 2)
-  );
-  const sourceY = Math.max(
-    0,
-    Math.min(sourceHeight - sourceSampleHeight, sourceCenterY - sourceSampleHeight / 2)
-  );
-
-  try {
-    context.clearRect(0, 0, canvasSize, canvasSize);
-    context.drawImage(
-      image,
-      sourceX,
-      sourceY,
-      sourceSampleWidth,
-      sourceSampleHeight,
-      0,
-      0,
-      canvasSize,
-      canvasSize
-    );
-
-    const imageData = context.getImageData(0, 0, canvasSize, canvasSize).data;
-    let weightedLuminanceSum = 0;
-    let alphaSum = 0;
-
-    for (let index = 0; index < imageData.length; index += 4) {
-      const red = imageData[index];
-      const green = imageData[index + 1];
-      const blue = imageData[index + 2];
-      const alpha = imageData[index + 3] / 255;
-      const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
-
-      weightedLuminanceSum += luminance * alpha;
-      alphaSum += alpha;
-    }
-
-    if (!alphaSum) return null;
-
-    return weightedLuminanceSum / alphaSum;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-
 function getOrCreateImageModal() {
   let modal = document.querySelector(".image-modal");
 
@@ -881,6 +766,9 @@ function getOrCreateImageModal() {
 
   modal = document.createElement("div");
   modal.className = "image-modal";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+  modal.setAttribute("aria-label", "Просмотр медиа");
   modal.setAttribute("aria-hidden", "true");
   modal.innerHTML = `
     <div class="image-modal__overlay" aria-hidden="true"></div>
@@ -963,15 +851,7 @@ function setupPreviewZoom() {
 
   const MODAL_IMAGE_PRELOAD_ROOT_MARGIN = "800px 0px";
   const imagePreloadCache = new Map();
-  const closeContrastCanvas = document.createElement("canvas");
-  const closeContrastContext = closeContrastCanvas.getContext("2d", {
-    willReadFrequently: true,
-  });
-
-  if (closeContrastContext) {
-    closeContrastCanvas.width = 12;
-    closeContrastCanvas.height = 12;
-  }
+  const closeContrastContext = createSamplingContext();
 
   const swipeDismissState = {
     active: false,
@@ -1071,11 +951,12 @@ function setupPreviewZoom() {
       return;
     }
 
-    const luminance = sampleImageLuminanceAtPoint(
+    const luminance = sampleMediaLuminanceAtPoint(
       target.image,
       target.sampleX,
       target.sampleY,
-      closeContrastContext
+      closeContrastContext,
+      { sampleAreaSize: MODAL_CLOSE_SAMPLE_AREA_SIZE }
     );
 
     modalClose.classList.toggle(
@@ -1106,6 +987,13 @@ function setupPreviewZoom() {
     trigger.getAttribute("data-full-src") ||
     trigger.getAttribute("src") ||
     trigger.querySelector("video, img")?.getAttribute("src");
+
+  const getTriggerLabel = (trigger) => {
+    const caption = trigger.querySelector(".image-block__caption, .image-block__tag");
+    const pageTitle = document.querySelector("h1")?.textContent?.trim();
+    const label = caption?.textContent?.trim() || pageTitle || "изображение";
+    return `Открыть: ${label}`;
+  };
 
   const preloadImageAsset = (src, fetchPriority = "low") => {
     if (!src) {
@@ -1158,11 +1046,7 @@ function setupPreviewZoom() {
     }
 
     if (typeof modalImage.decode === "function") {
-      try {
-        await modalImage.decode();
-      } catch (error) {
-        // decode() can reject for broken images; keep the loaded frame as-is.
-      }
+      await modalImage.decode().catch(() => {});
     }
 
     updateModalCloseChrome();
@@ -1258,6 +1142,10 @@ function setupPreviewZoom() {
   zoomTriggers.forEach((trigger) => {
     const preloadOnIntent = () => primeTriggerFullImage(trigger, "high");
 
+    trigger.setAttribute("role", "button");
+    trigger.setAttribute("tabindex", "0");
+    trigger.setAttribute("aria-label", getTriggerLabel(trigger));
+
     trigger.addEventListener("pointerenter", preloadOnIntent, {
       passive: true,
       signal: pageLifecycle.signal,
@@ -1272,6 +1160,15 @@ function setupPreviewZoom() {
     trigger.addEventListener("click", () => openModal(trigger), {
       signal: pageLifecycle.signal,
     });
+    trigger.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        openModal(trigger);
+      },
+      { signal: pageLifecycle.signal }
+    );
   });
 
   scheduleModalImagePreloads();
@@ -1572,6 +1469,14 @@ const normalizePageName = (value) => {
 const getCurrentPageName = () =>
   normalizePageName(window.location.pathname) || "index.html";
 
+const getRenderedPageName = () => {
+  const mainId = document.querySelector(".main")?.id;
+
+  if (mainId === "agreement-card-top") return "agreement-card.html";
+  if (mainId === "story-builder-top") return "story-builder.html";
+  return "index.html";
+};
+
 const warmImageCacheForHtml = (html) => {
   const parsed = new DOMParser().parseFromString(html, "text/html");
 
@@ -1616,7 +1521,7 @@ const ensurePageCached = async (pageName) => {
 };
 
 const cacheCurrentDocument = () => {
-  const currentPage = getCurrentPageName();
+  const currentPage = getRenderedPageName();
   pageCache.set(currentPage, document.documentElement.outerHTML);
   warmImageCacheForHtml(document.documentElement.outerHTML);
 };
@@ -1728,6 +1633,7 @@ function setupPageNavigation() {
 }
 
 function initPortfolioPage() {
+  window.renderPortfolioComponents?.();
   resetPageLifecycle();
   closeActiveImageModal();
 
