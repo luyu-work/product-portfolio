@@ -91,15 +91,12 @@ const handleInitialHashScroll = () => {
 
   if (!targetElement) return;
 
-  document.body.classList.add("no-anim", "no-transition");
+  document.body.classList.add("no-anim");
 
   setTimeout(() => {
     targetElement.scrollIntoView({ behavior: "auto", block: "start" });
   }, 0);
 
-  setTimeout(() => {
-    document.body.classList.remove("no-transition");
-  }, 100);
 };
 
 const easeInOutCubic = (t, b, c, d) => {
@@ -270,10 +267,30 @@ function setupWorkListToggles() {
   if (!workList) return;
 
   const syncItemState = (item) => {
-    item.classList.toggle("expanded", item.getAttribute("collapsed") === "no");
+    const isExpanded = item.dataset.collapsed === "false";
+    const content = item.querySelector(".work-list__item-content");
+    const toggle = item.querySelector(".work-list__toggle");
+
+    item.classList.toggle("expanded", isExpanded);
+    content?.setAttribute("aria-hidden", String(!isExpanded));
+    toggle?.setAttribute("aria-expanded", String(isExpanded));
+    toggle?.setAttribute(
+      "aria-label",
+      isExpanded ? "Свернуть описание" : "Развернуть описание"
+    );
   };
 
-  workList.querySelectorAll(".work-list__item").forEach(syncItemState);
+  workList.querySelectorAll(".work-list__item").forEach((item, index) => {
+    const content = item.querySelector(".work-list__item-content");
+    const toggle = item.querySelector(".work-list__toggle");
+
+    if (content && toggle) {
+      content.id ||= `work-description-${index + 1}`;
+      toggle.setAttribute("aria-controls", content.id);
+    }
+
+    syncItemState(item);
+  });
 
   workList.addEventListener("click", (event) => {
     if (!(event.target instanceof Element)) return;
@@ -285,9 +302,9 @@ function setupWorkListToggles() {
     const item = header.closest(".work-list__item");
     if (!item) return;
 
-    const isExpanded = item.getAttribute("collapsed") === "no";
-    item.setAttribute("collapsed", isExpanded ? "yes" : "no");
-    item.classList.toggle("expanded", !isExpanded);
+    const isExpanded = item.dataset.collapsed === "false";
+    item.dataset.collapsed = String(isExpanded);
+    syncItemState(item);
   });
 }
 
@@ -699,7 +716,7 @@ function getResultMobileSrc(src) {
     return src.replace("@4x", "-mobile@4x");
   }
 
-  return src.replace(/\.png$/i, "-mobile.png");
+  return src.replace(/(\.[a-z0-9]+)$/i, "-mobile$1");
 }
 
 function setupResultImageResponsive() {

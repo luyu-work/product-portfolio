@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>UI/UXarisov</title>
     <link rel="icon" href="src/icons/favicon16.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
     <link rel="prefetch" href="./story-builder.html" />
     <link rel="prefetch" href="./agreement-card.html" />
@@ -27,8 +33,8 @@
         </button>
       </header>
       
-      <div class="home anim-load anim-delay-2">
-        <div class="home__title">Харисов Данил – UI/UX дизайнер</div>
+      <section class="home anim-load anim-delay-2">
+        <h1 class="home__title">Харисов Данил – UI/UX дизайнер</h1>
         <div class="home__subtitle">
           Специализируюсь на B2B, B2G и B2E проектах<br />Опыт 2+ года
         </div>
@@ -55,39 +61,39 @@
             <span class="link-button-text">lubu.lanfen@gmail.com</span>
           </button>
         </div>
-      </div>
+      </section>
 
-      <div class="projects anim-load anim-delay-3">
-        <div class="projects__title">Проекты</div>
+      <section class="projects anim-load anim-delay-3">
+        <h2 class="projects__title">Проекты</h2>
         <div class="projects__list">
 
           <a href="./agreement-card.html" class="project-card">
             <div class="project-card__header">
               <div class="project-card__content">
-                <div class="project-card__title">Карточка договора</div>
+                <h3 class="project-card__title">Карточка договора</h3>
                 <div class="project-card__subtitle">Как договор перестал быть просто файлом и стал единой точкой работы для менеджера</div>
               </div>
               <div class="project-card__tag">Компания "ЦВА"</div>
             </div>
-            <div class="project-card__image" style="background-image: url('./src/img/d-preview.png');"></div>
+            <div class="project-card__image" style="background-image: url('./src/img/d-preview.webp');"></div>
           </a>
 
           <a href="./story-builder.html" class="project-card">
             <div class="project-card__header">
               <div class="project-card__content">
-                <div class="project-card__title">Конструктор сторисов</div>
+                <h3 class="project-card__title">Конструктор сторисов</h3>
                 <div class="project-card__subtitle">Или как менеджеры начали создавать сторисы за 20 минут с минимальными ошибками</div>
               </div>
               <div class="project-card__tag">Компания "Tages"</div>
             </div>
-            <div class="project-card__image" style="background-image: url('./src/img/s-preview.png');"></div>
+            <div class="project-card__image" style="background-image: url('./src/img/s-preview.webp');"></div>
           </a>
 
           <div class="project-card project-card--more">
             <div class="project-card__more-text">Другие кейсы сейчас в работе, немного подождите, они обязательно здесь появятся</div>
           </div>
         </div>
-      </div>
+      </section>
 
       <svg class="svg-sprite" aria-hidden="true" focusable="false">
         <symbol id="icon-work-list-toggle" viewBox="0 0 16 16" fill="none">
@@ -103,11 +109,11 @@
 
       <section class="work-list anim-load anim-delay-4">
         <div class="work-list__title">
-          <div class="work-list__title-text">
+          <h2 class="work-list__title-text">
             Общий стаж<br />2 года и 7 месяц
-          </div>
+          </h2>
         </div>
-        <div class="work-list__item" collapsed="yes">
+        <div class="work-list__item" data-collapsed="true">
           <div class="work-list__item-header">
             <div class="work-list__left-side">
               <div class="work-list__date">05.25 – сейчас</div>
@@ -149,7 +155,7 @@
             </div>
           </div>
         </div>
-        <div class="work-list__item" collapsed="yes">
+        <div class="work-list__item" data-collapsed="true">
           <div class="work-list__item-header">
             <div class="work-list__left-side">
               <div class="work-list__date">10.24 – 03.25</div>
@@ -188,7 +194,7 @@
             </div>
           </div>
         </div>
-        <div class="work-list__item" collapsed="yes">
+        <div class="work-list__item" data-collapsed="true">
           <div class="work-list__item-header">
             <div class="work-list__left-side">
               <div class="work-list__date">09.23 – 07.24</div>
@@ -227,13 +233,13 @@
         </div>
       </section>
 
-      <div class="footer anim-load anim-delay-5">
+      <footer class="footer anim-load anim-delay-5">
         <div class="footer__year">
           <div class="footer__year-sign">©</div>
           <div class="footer__year-value">2026</div>
         </div>
         <div class="footer__note">Сделано мной для всех, IE</div>
-      </div>
+      </footer>
     </main>
     <script src="script.js"></script>
   </body>
