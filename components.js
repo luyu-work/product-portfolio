@@ -86,10 +86,17 @@ const renderCaseAnchor = (element, items) => {
 };
 
 const preparePageAnimations = () => {
-  document.querySelectorAll(".main > *:not(.svg-sprite)").forEach((element, index) => {
-    element.classList.add("anim-load");
-    element.style.animationDelay = `${(index + 1) * 50}ms`;
+  document.querySelectorAll(".action-block").forEach((element) => {
+    element.classList.remove("anim-load");
+    element.style.removeProperty("animation-delay");
   });
+
+  document
+    .querySelectorAll(".main > *:not(.svg-sprite):not(.action-block)")
+    .forEach((element, index) => {
+      element.classList.add("anim-load");
+      element.style.animationDelay = `${(index + 1) * 50}ms`;
+    });
 };
 
 const renderPortfolioComponents = () => {

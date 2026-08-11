@@ -319,9 +319,6 @@ body {
   display: flex;
   flex-direction: column;
   border-top: 1px solid rgba(255, 255, 255, 0.03);
-  transition:
-    background-color 0.5s var(--ease-smooth),
-    border-color 0.5s var(--ease-smooth);
 }
 
 .work-list__item:last-child {
@@ -941,6 +938,13 @@ body.no-anim .anim-load {
   transition: opacity 0.15s ease, visibility 0s linear 0s, color 0.2s ease;
 }
 
+.image-modal__close.is-closing {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: none;
+}
+
 .image-modal__close--dark {
   color: #141414;
 }
@@ -1211,10 +1215,6 @@ body.image-modal-open {
 }
 
 @media (hover: hover) {
-  .work-list__item:hover {
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
   .work-list__item-header:hover .work-list__date {
     color: #ffffff;
   }

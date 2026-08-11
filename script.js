@@ -785,8 +785,6 @@ function getOrCreateImageModal() {
   return modal;
 }
 
-let previewZoomModalReady = false;
-
 const IMAGE_MODAL_STATE_CLASSES = [
   "is-active",
   "image-modal--image",
@@ -832,7 +830,7 @@ const closeImageModalElement = (modal, { blurActive = false } = {}) => {
 
 function setupPreviewZoom() {
   const zoomTriggers = document.querySelectorAll(".preview-block, .image-block");
-  if (!zoomTriggers.length && !previewZoomModalReady) return;
+  if (!zoomTriggers.length) return;
 
   const modal = getOrCreateImageModal();
   const modalImage = modal.querySelector(".image-modal__image");
@@ -1071,6 +1069,7 @@ function setupPreviewZoom() {
       window.innerWidth - document.documentElement.clientWidth;
 
     document.body.style.paddingRight = `${Math.max(scrollbarWidth, 0)}px`;
+    modalClose.classList.remove("is-closing");
     modal.classList.remove("image-modal--image", "image-modal--video");
     resetModalImageZoom();
     resetModalCloseChrome();
@@ -1097,10 +1096,14 @@ function setupPreviewZoom() {
   };
 
   const closeModal = () => {
+    if (!modal.classList.contains("is-active")) return;
+
     swipeDismissState.active = false;
     resetModalImageZoom();
-    closeImageModalElement(modal, { blurActive: true });
+    modalClose.classList.add("is-closing");
     resetModalCloseChrome();
+    closeImageModalElement(modal, { blurActive: true });
+    requestAnimationFrame(() => modalClose.classList.remove("is-closing"));
   };
 
   const scheduleModalImagePreloads = () => {
@@ -1173,14 +1176,12 @@ function setupPreviewZoom() {
 
   scheduleModalImagePreloads();
 
-  if (previewZoomModalReady) {
-    return;
-  }
-
-  previewZoomModalReady = true;
-
-  modalImage.addEventListener("load", updateModalCloseChrome);
-  modalVideo.addEventListener("loadedmetadata", updateModalCloseChrome);
+  modalImage.addEventListener("load", updateModalCloseChrome, {
+    signal: pageLifecycle.signal,
+  });
+  modalVideo.addEventListener("loadedmetadata", updateModalCloseChrome, {
+    signal: pageLifecycle.signal,
+  });
   window.addEventListener(
     "resize",
     () => {
@@ -1201,7 +1202,8 @@ function setupPreviewZoom() {
           void swapModalImageToFullRes(latestFull);
         }
       }
-    }
+    },
+    { signal: pageLifecycle.signal }
   );
 
   const handleCloseButtonActivate = (event) => {
@@ -1210,16 +1212,22 @@ function setupPreviewZoom() {
     closeModal();
   };
 
-  modalOverlay.addEventListener("click", closeModal);
-  modalClose.addEventListener("click", handleCloseButtonActivate);
-
-  modal.addEventListener("click", (event) => {
-    if (!modal.classList.contains("is-active")) return;
-    const target = event.target;
-    if (target.closest(".image-modal__close")) return;
-    if (target.closest(".image-modal__image, .image-modal__video")) return;
-    closeModal();
+  modalClose.addEventListener("click", handleCloseButtonActivate, {
+    signal: pageLifecycle.signal,
   });
+
+  modal.addEventListener(
+    "click",
+    (event) => {
+      if (!modal.classList.contains("is-active")) return;
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (target.closest(".image-modal__close")) return;
+      if (target.closest(".image-modal__image, .image-modal__video")) return;
+      closeModal();
+    },
+    { signal: pageLifecycle.signal }
+  );
 
   modal.addEventListener(
     "touchstart",
@@ -1262,7 +1270,7 @@ function setupPreviewZoom() {
       swipeDismissState.startX = event.touches[0].clientX;
       swipeDismissState.startY = event.touches[0].clientY;
     },
-    { passive: false }
+    { passive: false, signal: pageLifecycle.signal }
   );
 
   modal.addEventListener(
@@ -1318,17 +1326,18 @@ function setupPreviewZoom() {
 
       const touch = event.touches[0];
       const deltaX = touch.clientX - swipeDismissState.startX;
-      const deltaY = swipeDismissState.startY - touch.clientY;
+      const deltaY = touch.clientY - swipeDismissState.startY;
+      const verticalDistance = Math.abs(deltaY);
 
       if (
-        deltaY >= MODAL_SWIPE_DISMISS_MIN_DISTANCE &&
-        Math.abs(deltaX) <= deltaY * 0.75
+        verticalDistance >= MODAL_SWIPE_DISMISS_MIN_DISTANCE &&
+        Math.abs(deltaX) <= verticalDistance * 0.75
       ) {
         swipeDismissState.active = false;
         closeModal();
       }
     },
-    { passive: false }
+    { passive: false, signal: pageLifecycle.signal }
   );
 
   const resetModalTouchGestures = (event) => {
@@ -1351,18 +1360,27 @@ function setupPreviewZoom() {
     }
   };
 
-  modal.addEventListener("touchend", resetModalTouchGestures, { passive: true });
+  modal.addEventListener("touchend", resetModalTouchGestures, {
+    passive: true,
+    signal: pageLifecycle.signal,
+  });
   modal.addEventListener("touchcancel", resetModalTouchGestures, {
     passive: true,
+    signal: pageLifecycle.signal,
   });
 
   modalOverlay.addEventListener("wheel", (event) => event.preventDefault(), {
     passive: false,
+    signal: pageLifecycle.signal,
   });
 
   if (window.visualViewport) {
-    window.visualViewport.addEventListener("resize", updateModalCloseChrome);
-    window.visualViewport.addEventListener("scroll", updateModalCloseChrome);
+    window.visualViewport.addEventListener("resize", updateModalCloseChrome, {
+      signal: pageLifecycle.signal,
+    });
+    window.visualViewport.addEventListener("scroll", updateModalCloseChrome, {
+      signal: pageLifecycle.signal,
+    });
   }
 
   document.addEventListener(
@@ -1374,7 +1392,7 @@ function setupPreviewZoom() {
       event.preventDefault();
       closeModal();
     },
-    true
+    { capture: true, signal: pageLifecycle.signal }
   );
 }
 
