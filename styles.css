@@ -169,7 +169,8 @@ body {
   gap: 24px;
 }
 
-.projects__title {
+.projects__title,
+.work-list__title-text {
   color: rgba(255, 255, 255, 0.5);
   font-size: 16px;
   font-weight: 400;
@@ -307,10 +308,6 @@ body {
 
 .work-list__title-text {
   flex: 1 1 0;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.4;
 }
 
 .work-list__item {
