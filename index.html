@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UI/UXarisov</title>
+    <link rel="icon" href="src/icons/favicon16.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="prefetch" href="./story-builder.html" />
+    <link rel="prefetch" href="./agreement-card.html" />
+  </head>
+  <body class="page">
+    <main class="main">
+      <header class="header anim-load anim-delay-1">
+        <div class="logo-wrapper">
+          <img src="./src/icons/logo.svg" alt="" width="32" height="25" />
+        </div>
+        <button
+          class="back-button back-button--cv"
+          id="save-file-button"
+          type="button"
+          data-download-url="./src/files/cv-kharisov.pdf"
+          data-download-name="cv-kharisov.pdf"
+          aria-label="CV"
+        >
+          <span class="back-button-text cv-text">Скачать резюме</span>
+        </button>
+      </header>
+      
+      <div class="home anim-load anim-delay-2">
+        <div class="home__title">Харисов Данил – UI/UX дизайнер</div>
+        <div class="home__subtitle">
+          Специализируюсь на B2B, B2G и B2E проектах<br />Опыт 2+ года
+        </div>
+        <div class="home__contacts">
+          <a
+            class="contact-button contact-button--icon"
+            href="https://t.me/Evillazy"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Telegram"
+          >
+            <img src="src/icons/tg.svg" alt="" width="16" height="16" />
+          </a>
+          <button
+            id="copy-email"
+            type="button"
+            class="contact-button"
+            title="Скопировать email"
+            aria-label="Скопировать lubu.lanfen@gmail.com в буфер обмена"
+          >
+            <span class="link-button-icon">
+              <img src="src/icons/mail.svg" alt="" width="16" height="16" />
+            </span>
+            <span class="link-button-text">lubu.lanfen@gmail.com</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="projects anim-load anim-delay-3">
+        <div class="projects__title">Проекты</div>
+        <div class="projects__list">
+
+          <a href="./agreement-card.html" class="project-card">
+            <div class="project-card__header">
+              <div class="project-card__content">
+                <div class="project-card__title">Карточка договора</div>
+                <div class="project-card__subtitle">Как договор перестал быть просто файлом и стал единой точкой работы для менеджера</div>
+              </div>
+              <div class="project-card__tag">Компания "ЦВА"</div>
+            </div>
+            <div class="project-card__image" style="background-image: url('./src/img/d-preview.png');"></div>
+          </a>
+
+          <a href="./story-builder.html" class="project-card">
+            <div class="project-card__header">
+              <div class="project-card__content">
+                <div class="project-card__title">Конструктор сторисов</div>
+                <div class="project-card__subtitle">Или как менеджеры начали создавать сторисы за 20 минут с минимальными ошибками</div>
+              </div>
+              <div class="project-card__tag">Компания "Tages"</div>
+            </div>
+            <div class="project-card__image" style="background-image: url('./src/img/s-preview.png');"></div>
+          </a>
+
+          <div class="project-card project-card--more">
+            <div class="project-card__more-text">Другие кейсы сейчас в работе, немного подождите, они обязательно здесь появятся</div>
+          </div>
+        </div>
+      </div>
+
+      <svg class="svg-sprite" aria-hidden="true" focusable="false">
+        <symbol id="icon-work-list-toggle" viewBox="0 0 16 16" fill="none">
+          <path
+            d="M4 8H8M8 8H12M8 8V12M8 8V4"
+            stroke="currentColor"
+            stroke-width="1.33333"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </symbol>
+      </svg>
+
+      <section class="work-list anim-load anim-delay-4">
+        <div class="work-list__title">
+          <div class="work-list__title-text">
+            Общий стаж<br />2 года и 7 месяц
+          </div>
+        </div>
+        <div class="work-list__item" collapsed="yes">
+          <div class="work-list__item-header">
+            <div class="work-list__left-side">
+              <div class="work-list__date">05.25 – сейчас</div>
+              <a
+                class="work-list__company work-list__company-link"
+                href="https://digitalva.org/about"
+                target="_blank"
+                rel="noopener noreferrer"
+                referrerpolicy="no-referrer"
+                >ЦВА</a
+              >
+            </div>
+            <div class="work-list__action">
+              <div class="work-list__position">
+                UI/UX <span class="work-list__position-suffix">дизайнер</span>
+              </div>
+              <button
+                class="work-list__toggle"
+                type="button"
+                aria-label="Развернуть/свернуть"
+              >
+                <svg width="16" height="16" aria-hidden="true">
+                  <use href="#icon-work-list-toggle" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="work-list__item-content">
+            <div class="work-list__description">
+              <div class="work-list__description-item">- проектирование B2B-интерфейсов для систем виртуализации, мониторинга и внутренних сервисов B2E;</div>
+              <div class="work-list__description-item">- анализ метрик ATHT, FRT и ASAT;</div>
+              <div class="work-list__description-item">- переработка интерфейса мониторинговой системы на базе Zabbix. Решение прошло проверку Минцифры и вошло в лицензированный отечественный продукт;</div>
+              <div class="work-list__description-item">- проектирование концепта единой точки работы с договором и связанными сущностями в портале с интеграцией 1С;</div>
+              <div class="work-list__description-item">- проведение исследования конкурентнов, интервью для поиска феноменов и инсайтов;</div>
+              <div class="work-list__description-item">- организация и проведение A/B-тестирования гипотез по оптимизации интерфейса и функционала платформы, что позволило дополнительно привлечь новых клиентов;</div>
+              <div class="work-list__description-item">- сократил цикл согласования договоров на 40%, а также снизил количество ошибок ввода данных на 17%;</div>
+              <div class="work-list__description-item">- собирал data model для дальнейшей передачи в разработку;</div>
+              <div class="work-list__description-item">- проверял решения на прототипах и дорабатывал их итеративно на основе обратной связи пользователей</div>
+            </div>
+          </div>
+        </div>
+        <div class="work-list__item" collapsed="yes">
+          <div class="work-list__item-header">
+            <div class="work-list__left-side">
+              <div class="work-list__date">10.24 – 03.25</div>
+              <a
+                class="work-list__company work-list__company-link"
+                href="https://tages.ru/"
+                target="_blank"
+                rel="noopener noreferrer"
+                referrerpolicy="no-referrer"
+                >Tages</a
+              >
+            </div>
+            <div class="work-list__action">
+              <div class="work-list__position">
+                UI/UX <span class="work-list__position-suffix">дизайнер</span>
+              </div>
+              <button
+                class="work-list__toggle"
+                type="button"
+                aria-label="Развернуть/свернуть"
+              >
+                <svg width="16" height="16" aria-hidden="true">
+                  <use href="#icon-work-list-toggle" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="work-list__item-content">
+            <div class="work-list__description">
+              <div class="work-list__description-item">- проектировал B2B-интерфейсы для мобильного приложения закупок и web-конструктора сторисов;</div>
+              <div class="work-list__description-item">- проводил юзабилити-тестирование и конкурентный анализ, описывал job story, сценарии и приоритизировал гипотезы по ICE;</div>
+              <div class="work-list__description-item">- проектировал глобальный вид сценария для сторисов с вложенными переходами;</div>
+              <div class="work-list__description-item">- после внедрения среднее время выполнения сложного сценария сократилось с 25 минут до 20:16;</div>
+              <div class="work-list__description-item">- доля ошибочных линковок и кнопок без перехода снизилась с 15% до 2%;</div>
+              <div class="work-list__description-item">- результаты подтверждены серией из 7 итераций тестирования с 2 менеджерами</div>
+            </div>
+          </div>
+        </div>
+        <div class="work-list__item" collapsed="yes">
+          <div class="work-list__item-header">
+            <div class="work-list__left-side">
+              <div class="work-list__date">09.23 – 07.24</div>
+              <a
+                class="work-list__company work-list__company-link"
+                href="https://itcodegroup.ru/about"
+                target="_blank"
+                rel="noopener noreferrer"
+                referrerpolicy="no-referrer"
+                >ITC</a
+              >
+            </div>
+            <div class="work-list__action">
+              <div class="work-list__position">
+                UI/UX <span class="work-list__position-suffix">дизайнер</span>
+              </div>
+              <button
+                class="work-list__toggle"
+                type="button"
+                aria-label="Развернуть/свернуть"
+              >
+                <svg width="16" height="16" aria-hidden="true">
+                  <use href="#icon-work-list-toggle" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="work-list__item-content">
+            <div class="work-list__description">
+              <div class="work-list__description-item">- развивал UI-kit и переводил интерфейсы на компонентный подход;</div>
+              <div class="work-list__description-item">- работал с Element+ и готовил интерфейсы под технические ограничения;</div>
+              <div class="work-list__description-item">- участвовал в B2G-проектах «103» и «112», а также подготовил интерфейс Proxmox для DevOps-отдела;</div>
+              <div class="work-list__description-item">- выстроил взаимодействие с фронтенд-командой через user-flow и сценарии</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer anim-load anim-delay-5">
+        <div class="footer__year">
+          <div class="footer__year-sign">©</div>
+          <div class="footer__year-value">2026</div>
+        </div>
+        <div class="footer__note">Сделано мной для всех, IE</div>
+      </div>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>

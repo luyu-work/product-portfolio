@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Карточка договора</title>
+    <link rel="icon" href="src/icons/favicon16.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="prefetch" href="./index.html" />
+  </head>
+  <body class="page case-study">
+    <main class="main anchor-top" id="agreement-card-top">
+      <header class="header anim-load anim-delay-1">
+        <a href="./index.html" class="back-button">
+          <div class="back-button-icon">
+            <img src="./src/icons/back.svg" alt="" width="12" height="12" />
+          </div>
+          <span class="back-button-text">На главную</span>
+        </a>
+      </header>
+      <div class="story-content anim-load anim-delay-2">
+        <h1 class="story-content__title">Карточка договора</h1>
+        <p class="story-content__description">Как договор перестал быть просто файлом и стал единой точкой работы для менеджера</p>
+      </div>
+      <div class="before-after anim-load anim-delay-3">
+        <div
+          class="image-block image-block--tagged"
+          data-full-src="./src/img/d-before@4x.png"
+        >
+          <div class="image-block__tag">Было</div>
+          <div class="image-block__container">
+            <img
+              class="image-block__image"
+              src="./src/img/d-before.png"
+              alt=""
+              width="520"
+              height="276"
+              loading="lazy"
+              decoding="async"
+            >
+          </div>
+        </div>
+        <div
+          class="image-block image-block--tagged"
+          data-full-src="./src/img/d-after@4x.png"
+        >
+          <div class="image-block__tag">Финальная версия</div>
+          <div class="image-block__container">
+            <img
+              class="image-block__image"
+              src="./src/img/d-after.png"
+              alt=""
+              width="520"
+              height="420"
+              loading="lazy"
+              decoding="async"
+            >
+          </div>
+        </div>
+      </div>
+      <div
+        class="image-block result anim-load anim-delay-4"
+        data-full-src="./src/img/d-result@4x.png"
+      >
+        <div class="image-block__container">
+          <img
+            class="image-block__image"
+            src="./src/img/d-result.png"
+            alt=""
+            width="720"
+            height="609"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+      </div>
+      <section class="story-section anchor-section anim-load anim-delay-5" id="ac-context">
+        <h2 class="story-section__title">Контекст</h2>
+        <p class="story-section__description">
+          Чтобы собрать полный контекст по договору, менеджер переключался между 1C, корпоративным сайтом и своими заметками
+        </p>
+        <p class="story-section__description">
+          Ключевые сценарии (выставить счёт → оформить УПД → проверить документы) занимали много времени и были подвержены ошибкам
+        </p>
+      </section>
+      <section class="story-section anchor-section anim-load anim-delay-6" id="ac-problem">
+        <h2 class="story-section__title">Проблема</h2>
+        <p class="story-section__description">
+          Работа с контрагентами велась в 1C, а процессы коммерции и юр. отдела — в корпоративном сайте. Договор не был единой точкой работы. Чтобы понять статус и следующие шаги, менеджер переключался между системами, сопоставлял данные вручную и держал последовательность действий в голове. Это тормозило ключевые сценарии и повышало риск ошибок
+        </p>
+      </section>
+      <section class="story-section anchor-section anim-load anim-delay-7" id="ac-role">
+        <h2 class="story-section__title">Роль</h2>
+        <p class="story-section__description">
+          Провёл глубинные интервью с менеджерами коммерческого отдела, выявил основные шаги и боли при работе с договором, сформулировал job stories и ключевую гипотезу решения. Работал в связке с продуктовым менеджером
+        </p>
+      </section>
+      <section class="story-section anchor-section" id="ac-approach">
+        <h2 class="story-section__title">Подход</h2>
+        <p class="story-section__description">
+          После получения задачи провёл интервью с коллегами из коммерческого отдела и на их основе собрал main steps и ограничения 
+        </p>
+      </section>
+      <div
+        class="image-block"
+        data-full-src="./src/img/d-main-steps@4x.png"
+      >
+        <div class="image-block__container">
+          <img
+            class="image-block__image"
+            src="./src/img/d-main-steps.png"
+            alt=""
+            width="720"
+            height="609"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+        <div class="image-block__caption">Main steps</div>
+      </div>
+      <section class="story-section">
+        <p class="story-section__description">
+          Чтобы глубже понять предметную логику, самостоятельно изучил текущую работу с договором в 1С через 1С:Fresh — веб-версию системы, доступную в браузере
+        </p>
+        <p class="story-section__description">
+          Разобрал ключевые сценарии: связь договора со счетами, УПД и доп. соглашениями, статусную модель документов, а также создание контрагентов и услуг. Это позволило выделить паттерны, которые легли в основу логики интерфейса
+        </p>
+        <p class="story-section__description">
+          Сформулировал job stories, которые охватывали полное взаимодействие с договором
+        </p>
+      </section>
+      <div class="job-stories-list">
+        <div class="job-stories-list__item">
+          <div class="job-stories-list__text">Когда я открываю договор, я хочу сразу видеть все связанные с ним сущности, чтобы не переключаться между разделами</div>
+        </div>
+        <div class="job-stories-list__item">
+          <div class="job-stories-list__text">Когда я проверяю договор перед завершением работы, я хочу быстро убедиться, что к нему привязаны все обязательные документы, чтобы не хранить их у себя локально</div>
+        </div>
+        <div class="job-stories-list__item">
+          <div class="job-stories-list__text">Когда я выставляю счёт по договору, я хочу, чтобы система автоматически подтягивала связанные данные по договору и услугам, чтобы сократить ручные действия и снизить риск ошибок</div>
+        </div>
+        <div class="job-stories-list__item">
+          <div class="job-stories-list__text">Когда счёт уже выставлен, я хочу получать напоминания о необходимости оформить УПД и о приближении срока оплаты, чтобы не пропускать следующие обязательные действия по договору</div>
+        </div>
+        <div class="job-stories-list__item">
+          <div class="job-stories-list__text">Когда я выставляю счёт гос. заказчику, я хочу сразу сформировать УПД, чтобы не пропустить обязательный документ и избежать серьёзных последствий в работе с заказчиком</div>
+        </div>
+        <div class="job-stories-list__caption">Job stories</div>
+      </div>
+      <section class="story-section">
+        <p class="story-section__description">
+          На основе интервью, main steps и job stories была сформулирована ключевая гипотеза решения
+        </p>
+        <p class="story-section__description">
+          Если мы объединим все связанные документы на одном экране договора и внедрим систему триггерных уведомлений (особенно для УПД и госконтрактов), то это избавит пользователя от хаотичного переключения между разделами и локального хранения файлов, а также минимизирует риски просрочек и финансовых потерь
+        </p>
+      </section>
+      <section class="story-section anchor-section" id="ac-solution">
+        <h2 class="story-section__title">Решение</h2>
+        <p class="story-section__description">
+          Первым шагом собрал data model. Определил, какие сущности связаны с договором, какие поля обязательны для договора, контрагента, счета и УПД, и какие зависимости между ними нужно учесть в интерфейсе
+        </p>
+      </section>
+      <div
+        class="image-block"
+        data-full-src="./src/img/d-data-model@4x.png"
+      >
+        <div class="image-block__container">
+          <img
+            class="image-block__image"
+            src="./src/img/d-data-model.png"
+            alt=""
+            width="2760"
+            height="1436"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+        <div class="image-block__caption">Data-model</div>
+      </div>
+      <section class="story-section">
+        <p class="story-section__description">
+          Отдельно проработал статусную модель и переходы между статусами
+        </p>
+      </section>
+      <div
+        class="image-block"
+        data-full-src="./src/img/d-flow@4x.png"
+      >
+        <div class="image-block__container">
+          <img
+            class="image-block__image"
+            src="./src/img/d-flow.png"
+            alt=""
+            width="720"
+            height="146"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+        <div class="image-block__caption">Flow статусов</div>
+      </div>
+      <section class="story-section">
+        <p class="story-section__description">
+          Следующим этапом стало создание единого пространства для работы с договорами и счетами
+        </p>
+      </section>
+      <div
+        class="image-block"
+        data-full-src="./src/img/d-main-table@4x.png"
+      >
+        <div class="image-block__container">
+          <img
+            class="image-block__image"
+            src="./src/img/d-main-table.png"
+            alt=""
+            width="720"
+            height="450"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+        <div class="image-block__caption">Таблица договоров и счетов</div>
+      </div>
+      <section class="story-section">
+        <p class="story-section__description">
+          Первая итерация выглядела следующим образом
+        </p>
+      </section>
+      <div
+        class="image-block"
+        data-full-src="./src/img/d-first-ver@4x.png"
+      >
+        <div class="image-block__container">
+          <img
+            class="image-block__image"
+            src="./src/img/d-first-ver.png"
+            alt=""
+            width="720"
+            height="450"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+        <div class="image-block__caption">Первая итерация</div>
+      </div>
+      <section class="story-section">
+        <p class="story-section__description">
+          Первая итерация юзабилити-тестирования показала, что менеджерам очень важно держать под рукой не только доп. соглашения, но и сопутствующие файлы (акты, технические задания, спецификации и сканы)
+        </p>
+        <p class="story-section__description">
+          Вдобавок, необходимо разгрузить длинное боковое окно (drawer), я перепроектировал навигацию с помощью табов
+        </p>
+        <p class="story-section__description">
+          Также для «услуг внедрения» не хватало поля «количество». В отличие от тех. сопровождения, одна и та же услуга внедрения может оказываться несколько раз за месяц
+        </p>
+        <p class="story-section__description">
+          Первым делом перепроектировал навигацию, все данные все еще в одной сущности, но выстроены разделы по иерархии
+        </p>
+      </section>
+      <div
+        class="image-block"
+        data-full-src="./src/img/d-account@4x.png"
+      >
+        <div class="image-block__container">
+          <img
+            class="image-block__image"
+            src="./src/img/d-account.png"
+            alt=""
+            width="720"
+            height="450"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+        <div class="image-block__caption">Вкладка счетов – самое важное</div>
+      </div>
+      <section class="story-section">
+        <p class="story-section__description">
+          Для услуг внедрения теперь идет расчет количества
+        </p>
+      </section>
+      <div
+        class="image-block"
+        data-full-src="./src/img/d-services@4x.png"
+      >
+        <div class="image-block__container">
+          <img
+            class="image-block__image"
+            src="./src/img/d-services.png"
+            alt=""
+            width="720"
+            height="450"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+        <div class="image-block__caption">Вкладка услуг</div>
+      </div>
+      <section class="story-section">
+        <p class="story-section__description">
+          Во вкладке документы теперь можно и хранить вложенности, относящиеся к договору
+        </p>
+      </section>
+      <div
+        class="image-block"
+        data-full-src="./src/img/d-files@4x.png"
+      >
+        <div class="image-block__container">
+          <img
+            class="image-block__image"
+            src="./src/img/d-files.png"
+            alt=""
+            width="720"
+            height="450"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+        <div class="image-block__caption">Вкладка документов</div>
+      </div>
+      <section class="story-section">
+        <p class="story-section__description">
+          Итоговый вид всех сценариев для передачи в разработку
+        </p>
+      </section>
+      <div
+        class="image-block"
+        data-full-src="./src/img/d-overview@4x.png"
+      >
+        <div class="image-block__container">
+          <img
+            class="image-block__image"
+            src="./src/img/d-overview.png"
+            alt=""
+            width="720"
+            height="450"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+        <div class="image-block__caption">Общий вид на сценарии</div>
+      </div>
+      <section class="story-section">
+        <p class="story-section__description">
+          При проверке обновленного интерфейса, я провел второй раунд юзабилити-тестирования на кликабельном прототипе. Пользователям были предложены те же сквозные сценарии: проверка договора, выставление счета и формирование УПД для госорганов
+        </p>
+        <p class="story-section__description">
+          <span class="white-selection">Скорость</span> работы с договором <span class="white-selection">выросла на 40%</span>, благодаря навигации по табам и автоматическому подтягиванию данных из договора, пользователи перестали тратить время на переключение между 1С, корпоративным сайтом и локальными папками
+        </p>
+        <p class="story-section__description">
+          Автозаполнение избавило менеджеров от рутины и <span class="white-selection">снизило количество ошибок на 17%</span>. Теперь система сама подтягивает нужные реквизиты и вовремя напоминает про УПД, снимая с человека страх что-то упустить или ошибиться в цифрах
+        </p>
+      </section>
+      <section class="story-section anchor-section" id="ac-result">
+        <h2 class="story-section__title">Итог</h2>
+        <p class="story-section__description">В результате работы над проектом я спроектировал концепт единой точки работы с договором, превратив его из статичного файла в интерактивный хаб для менеджера. Все связанные сущности (счета, акты, УПД) теперь бесшовно собираются в одном интерфейсе</p>
+        <p class="story-section__description">Продукт готовится к разработке. Для оценки успешности решения на продакшене совместно с PM мы зафиксировали целевые метрики, на которые будем опираться после релиза: <span class="white-selection">ASAT</span>, <span class="white-selection">ER</span> и <span class="white-selection">ToT</span></p>
+      </section>
+      <section class="story-section anchor-section" id="ac-reflection">
+        <h2 class="story-section__title">Рефлексия</h2>
+        <p class="story-section__description">Этот проект стал отличным вызовом. Работа с DMS-сценариями (Document Management System) требует глубокого понимания предметной области. Я научился не просто рисовать экраны, а сначала разбираться в тяжелой бизнес-логике, дата-моделях и связях сущностей</p>
+      </section>
+      <div class="action-block">
+        <a href="./index.html" class="back-button">
+          <div class="back-button-icon">
+            <img src="./src/icons/back.svg" alt="" width="12" height="12" />
+          </div>
+          <span class="back-button-text">На главную</span>
+        </a>
+        <button class="back-button scroll-to-top" type="button">
+          <div class="back-button-icon">
+            <img src="./src/icons/up.svg" alt="" width="12" height="12" />
+          </div>
+          <span class="back-button-text">Наверх</span>
+        </button>
+      </div>
+      <div class="footer">
+        <div class="footer__year">
+          <div class="footer__year-sign">©</div>
+          <div class="footer__year-value">2026</div>
+        </div>
+        <div class="footer__note">Сделано мной для всех, IE</div>
+      </div>
+    </main>
+    <nav
+      class="page-anchor anim-load anim-delay-2"
+      aria-label="Навигация по разделам"
+      data-anchor-nav
+    >
+      <div class="page-anchor__line" aria-hidden="true"></div>
+      <div class="page-anchor__active-line" aria-hidden="true"></div>
+      <ul class="page-anchor__list">
+        <li class="page-anchor__list-item">
+          <a
+            href="#agreement-card-top"
+            class="page-anchor__item page-anchor__item--active"
+            data-anchor-link
+            data-target-id="agreement-card-top"
+          >Превью</a>
+        </li>
+        <li class="page-anchor__list-item">
+          <a
+            href="#ac-context"
+            class="page-anchor__item"
+            data-anchor-link
+            data-target-id="ac-context"
+          >Контекст</a>
+        </li>
+        <li class="page-anchor__list-item">
+          <a
+            href="#ac-problem"
+            class="page-anchor__item"
+            data-anchor-link
+            data-target-id="ac-problem"
+          >Проблема</a>
+        </li>
+        <li class="page-anchor__list-item">
+          <a
+            href="#ac-role"
+            class="page-anchor__item"
+            data-anchor-link
+            data-target-id="ac-role"
+          >Роль</a>
+        </li>
+        <li class="page-anchor__list-item">
+          <a
+            href="#ac-approach"
+            class="page-anchor__item"
+            data-anchor-link
+            data-target-id="ac-approach"
+          >Подход</a>
+        </li>
+        <li class="page-anchor__list-item">
+          <a
+            href="#ac-solution"
+            class="page-anchor__item"
+            data-anchor-link
+            data-target-id="ac-solution"
+          >Решение</a>
+        </li>
+        <li class="page-anchor__list-item">
+          <a
+            href="#ac-result"
+            class="page-anchor__item"
+            data-anchor-link
+            data-target-id="ac-result"
+          >Итог</a>
+        </li>
+      </ul>
+    </nav>
+    <script src="script.js"></script>
+  </body>
+</html>
