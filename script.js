@@ -167,6 +167,7 @@ const sampleMediaLuminanceAtPoint = (
 };
 
 let pageLifecycle = new AbortController();
+const imageCarouselControllers = new WeakMap();
 
 const resetPageLifecycle = () => {
   pageLifecycle.abort();
@@ -197,13 +198,78 @@ const handleInitialHashScroll = () => {
 
   if (!targetElement) return;
 
-  document.body.classList.add("no-anim");
-
   setTimeout(() => {
     targetElement.scrollIntoView({ behavior: "auto", block: "start" });
   }, 0);
 
 };
+
+function setupPageReveal() {
+  const blocks = Array.from(
+    document.querySelectorAll(
+      ".main > *:not(.svg-sprite):not(.action-block), .page-anchor"
+    )
+  );
+
+  if (!blocks.length) {
+    document.body.classList.add("reveal-ready");
+    return;
+  }
+
+  blocks.forEach((block) => {
+    block.classList.add("reveal-block");
+    block.classList.remove("is-revealed");
+    block.style.removeProperty("--reveal-delay");
+  });
+
+  document.body.classList.add("reveal-ready");
+
+  // Keep the hidden state for one rendered frame so the browser can animate
+  // the transition to the visible state instead of merging both updates.
+  document.body.getBoundingClientRect();
+
+  const revealBlock = (block, delay = 0) => {
+    block.style.setProperty("--reveal-delay", `${delay}ms`);
+    block.classList.add("is-revealed");
+  };
+
+  if (!("IntersectionObserver" in window)) {
+    requestAnimationFrame(() => {
+      blocks.forEach((block, index) => {
+        revealBlock(block, Math.min(index * 60, 180));
+      });
+    });
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const visibleEntries = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort(
+          (firstEntry, secondEntry) =>
+            firstEntry.boundingClientRect.top - secondEntry.boundingClientRect.top
+        );
+
+      visibleEntries.forEach((entry, index) => {
+        revealBlock(entry.target, Math.min(index * 60, 180));
+        observer.unobserve(entry.target);
+      });
+    },
+    {
+      rootMargin: "0px 0px -8% 0px",
+      threshold: 0.06,
+    }
+  );
+
+  requestAnimationFrame(() => {
+    if (pageLifecycle.signal.aborted) return;
+    blocks.forEach((block) => observer.observe(block));
+  });
+  pageLifecycle.signal.addEventListener("abort", () => observer.disconnect(), {
+    once: true,
+  });
+}
 
 const easeInOutCubic = (t, b, c, d) => {
   let time = t / (d / 2);
@@ -212,31 +278,44 @@ const easeInOutCubic = (t, b, c, d) => {
   return (c / 2) * (time * time * time + 2) + b;
 };
 
-const smoothScrollToY = (targetY, duration = 700) => {
-  const safeTargetY = Math.max(targetY, 0);
-  const start = window.scrollY;
-  const distance = safeTargetY - start;
+let smoothScrollAnimationId = 0;
 
-  if (Math.abs(distance) < 1) {
-    window.scrollTo(0, safeTargetY);
-    return;
-  }
+const smoothScrollToY = (targetY, duration = 700) =>
+  new Promise((resolve) => {
+    const currentAnimationId = ++smoothScrollAnimationId;
+    const safeTargetY = Math.max(targetY, 0);
+    const start = window.scrollY;
+    const distance = safeTargetY - start;
 
-  let startTime = 0;
-
-  const step = (timestamp) => {
-    if (!startTime) startTime = timestamp;
-
-    const progress = Math.min(timestamp - startTime, duration);
-    window.scrollTo(0, easeInOutCubic(progress, start, distance, duration));
-
-    if (progress < duration) {
-      requestAnimationFrame(step);
+    if (Math.abs(distance) < 1) {
+      window.scrollTo(0, safeTargetY);
+      resolve();
+      return;
     }
-  };
 
-  requestAnimationFrame(step);
-};
+    let startTime = 0;
+
+    const step = (timestamp) => {
+      if (currentAnimationId !== smoothScrollAnimationId) {
+        resolve();
+        return;
+      }
+
+      if (!startTime) startTime = timestamp;
+
+      const progress = Math.min(timestamp - startTime, duration);
+      window.scrollTo(0, easeInOutCubic(progress, start, distance, duration));
+
+      if (progress < duration) {
+        requestAnimationFrame(step);
+        return;
+      }
+
+      resolve();
+    };
+
+    requestAnimationFrame(step);
+  });
 
 function setupCopyEmailButton() {
   const copyBtn = document.getElementById("copy-email");
@@ -589,6 +668,9 @@ function setupPageAnchorNav() {
 
   if (!items.length) return;
 
+  let lockedActiveLink = null;
+  let anchorNavigationId = 0;
+
   const setActiveItem = (nextLink) => {
     if (!nextLink) return;
 
@@ -649,7 +731,7 @@ function setupPageAnchorNav() {
 
   const updateAnchorNav = () => {
     updateAnchorPosition();
-    setActiveItem(getCurrentItem().link);
+    setActiveItem(lockedActiveLink || getCurrentItem().link);
   };
 
   links.forEach((link) => {
@@ -667,8 +749,15 @@ function setupPageAnchorNav() {
         window.scrollY -
         PAGE_ANCHOR_STICKY_TOP;
 
-      smoothScrollToY(targetY);
+      const currentNavigationId = ++anchorNavigationId;
+      lockedActiveLink = link;
       setActiveItem(link);
+
+      void smoothScrollToY(targetY).then(() => {
+        if (currentNavigationId !== anchorNavigationId) return;
+        lockedActiveLink = null;
+        updateAnchorNav();
+      });
 
       if (window.location.hash !== `#${targetId}`) {
         window.history.replaceState(null, "", `#${targetId}`);
@@ -751,9 +840,168 @@ function setupResultImageResponsive() {
   );
 }
 
+function setupImageCarousels() {
+  document.querySelectorAll("[data-image-carousel]").forEach((carousel) => {
+    const track = carousel.querySelector("[data-carousel-track]");
+    const viewport = carousel.querySelector("[data-carousel-zoom]");
+    const slides = Array.from(carousel.querySelectorAll(".image-carousel__slide"));
+    const dots = Array.from(carousel.querySelectorAll("[data-carousel-dot]"));
+    const previousButton = carousel.querySelector("[data-carousel-previous]");
+    const nextButton = carousel.querySelector("[data-carousel-next]");
+
+    if (!track || !viewport || slides.length < 2) return;
+
+    const carouselLabel =
+      viewport.getAttribute("data-zoom-label") || "изображение карусели";
+    let currentIndex = Math.max(
+      0,
+      slides.findIndex((slide) => slide.classList.contains("is-active"))
+    );
+    let pointerStart = null;
+    let suppressNextClick = false;
+
+    carousel.setAttribute("role", "region");
+    carousel.setAttribute("aria-roledescription", "карусель");
+    carousel.setAttribute("aria-label", carouselLabel);
+
+    const showSlide = (nextIndex) => {
+      currentIndex = (nextIndex + slides.length) % slides.length;
+      track.style.transform = `translate3d(-${currentIndex * 100}%, 0, 0)`;
+
+      slides.forEach((slide, index) => {
+        const isActive = index === currentIndex;
+        slide.classList.toggle("is-active", isActive);
+        slide.setAttribute("aria-hidden", String(!isActive));
+      });
+
+      dots.forEach((dot, index) => {
+        const isActive = index === currentIndex;
+        dot.classList.toggle("is-active", isActive);
+
+        if (isActive) {
+          dot.setAttribute("aria-current", "true");
+        } else {
+          dot.removeAttribute("aria-current");
+        }
+      });
+
+      const activeSlide = slides[currentIndex];
+      const fullSrc = activeSlide.getAttribute("data-full-src");
+
+      if (fullSrc) {
+        viewport.setAttribute("data-full-src", fullSrc);
+      }
+
+      const activeLabel = `${carouselLabel}, экран ${currentIndex + 1} из ${slides.length}`;
+      viewport.setAttribute("data-zoom-label", activeLabel);
+      viewport.setAttribute("aria-label", `Открыть: ${activeLabel}`);
+    };
+
+    imageCarouselControllers.set(carousel, {
+      showSlide,
+      getCurrentIndex: () => currentIndex,
+      getSlides: () => slides,
+    });
+
+    previousButton?.addEventListener(
+      "click",
+      (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        showSlide(currentIndex - 1);
+      },
+      { signal: pageLifecycle.signal }
+    );
+
+    nextButton?.addEventListener(
+      "click",
+      (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        showSlide(currentIndex + 1);
+      },
+      { signal: pageLifecycle.signal }
+    );
+
+    dots.forEach((dot) => {
+      dot.addEventListener(
+        "click",
+        (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const dotIndex = Number.parseInt(dot.getAttribute("data-carousel-dot"), 10);
+          if (Number.isNaN(dotIndex)) return;
+          showSlide(dotIndex);
+        },
+        { signal: pageLifecycle.signal }
+      );
+    });
+
+    carousel.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        event.preventDefault();
+        showSlide(currentIndex + (event.key === "ArrowRight" ? 1 : -1));
+      },
+      { signal: pageLifecycle.signal }
+    );
+
+    viewport.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (!event.isPrimary) return;
+        pointerStart = { x: event.clientX, y: event.clientY };
+      },
+      { passive: true, signal: pageLifecycle.signal }
+    );
+
+    viewport.addEventListener(
+      "pointerup",
+      (event) => {
+        if (!pointerStart || !event.isPrimary) return;
+
+        const deltaX = event.clientX - pointerStart.x;
+        const deltaY = event.clientY - pointerStart.y;
+        pointerStart = null;
+
+        if (Math.abs(deltaX) < 48 || Math.abs(deltaX) <= Math.abs(deltaY)) return;
+
+        suppressNextClick = true;
+        showSlide(currentIndex + (deltaX < 0 ? 1 : -1));
+      },
+      { passive: true, signal: pageLifecycle.signal }
+    );
+
+    viewport.addEventListener(
+      "pointercancel",
+      () => {
+        pointerStart = null;
+      },
+      { passive: true, signal: pageLifecycle.signal }
+    );
+
+    viewport.addEventListener(
+      "click",
+      (event) => {
+        if (!suppressNextClick) return;
+        suppressNextClick = false;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      },
+      { capture: true, signal: pageLifecycle.signal }
+    );
+
+    showSlide(currentIndex);
+  });
+}
+
 const MODAL_CLOSE_LUMINANCE_THRESHOLD = 185;
 const MODAL_CLOSE_SAMPLE_AREA_SIZE = 24;
 const MODAL_SWIPE_DISMISS_MIN_DISTANCE = 72;
+const MODAL_CAROUSEL_SWIPE_BREAKPOINT = 960;
+const MODAL_CAROUSEL_SWIPE_MIN_DISTANCE = 56;
+const MODAL_CAROUSEL_SWIPE_MAX_OFF_AXIS_RATIO = 0.6;
 const MODAL_IMAGE_MIN_ZOOM = 1;
 const MODAL_IMAGE_MAX_ZOOM = 4;
 
@@ -774,6 +1022,16 @@ function getOrCreateImageModal() {
     <div class="image-modal__overlay" aria-hidden="true"></div>
     <img class="image-modal__image" alt="" />
     <video class="image-modal__video" controls playsinline preload="metadata"></video>
+    <button class="image-modal__navigation image-modal__navigation--previous" type="button" aria-label="Предыдущее изображение" data-modal-carousel-previous>
+      <svg width="24" height="24" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M12.5 4.1665L6.66667 9.99984L12.5 15.8332" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="image-modal__navigation image-modal__navigation--next" type="button" aria-label="Следующее изображение" data-modal-carousel-next>
+      <svg width="24" height="24" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M7.5 4.1665L13.3333 9.99984L7.5 15.8332" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
     <button class="image-modal__close" type="button" aria-label="Закрыть медиа">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
         <path d="M18 18L12 12M12 12L6 6M12 12L18 6M12 12L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -789,6 +1047,7 @@ const IMAGE_MODAL_STATE_CLASSES = [
   "is-active",
   "image-modal--image",
   "image-modal--video",
+  "image-modal--carousel",
 ];
 
 const clearImageModalMedia = (modalImage, modalVideo) => {
@@ -829,7 +1088,9 @@ const closeImageModalElement = (modal, { blurActive = false } = {}) => {
 };
 
 function setupPreviewZoom() {
-  const zoomTriggers = document.querySelectorAll(".preview-block, .image-block");
+  const zoomTriggers = document.querySelectorAll(
+    ".preview-block, .image-block:not([data-image-carousel]), [data-carousel-zoom]"
+  );
   if (!zoomTriggers.length) return;
 
   const modal = getOrCreateImageModal();
@@ -838,8 +1099,17 @@ function setupPreviewZoom() {
   const modalOverlay = modal.querySelector(".image-modal__overlay");
   const modalClose = modal.querySelector(".image-modal__close");
   const modalCloseIconPath = modal.querySelector(".image-modal__close path");
+  const modalPrevious = modal.querySelector("[data-modal-carousel-previous]");
+  const modalNext = modal.querySelector("[data-modal-carousel-next]");
 
-  if (!modalImage || !modalVideo || !modalOverlay || !modalClose) {
+  if (
+    !modalImage ||
+    !modalVideo ||
+    !modalOverlay ||
+    !modalClose ||
+    !modalPrevious ||
+    !modalNext
+  ) {
     return;
   }
 
@@ -849,10 +1119,15 @@ function setupPreviewZoom() {
 
   const MODAL_IMAGE_PRELOAD_ROOT_MARGIN = "800px 0px";
   const imagePreloadCache = new Map();
+  const loadedImageAssets = new Set();
   const closeContrastContext = createSamplingContext();
+  let activeModalTrigger = null;
+  let activeModalCarousel = null;
+  let shouldRestoreTriggerFocus = false;
 
   const swipeDismissState = {
     active: false,
+    carouselNavigation: false,
     startX: 0,
     startY: 0,
   };
@@ -871,6 +1146,10 @@ function setupPreviewZoom() {
 
   const isMobileImageModal = () =>
     window.innerWidth < MOBILE_PADDING_BREAKPOINT;
+
+  const isModalCarouselSwipeEnabled = () =>
+    window.innerWidth < MODAL_CAROUSEL_SWIPE_BREAKPOINT &&
+    modal.classList.contains("image-modal--carousel");
 
   const clampModalImageZoom = (value) =>
     Math.min(MODAL_IMAGE_MAX_ZOOM, Math.max(MODAL_IMAGE_MIN_ZOOM, value));
@@ -902,6 +1181,35 @@ function setupPreviewZoom() {
     modalImageZoomState.isPinching = false;
     modalImageZoomState.isPanning = false;
     applyModalImageZoomTransform();
+  };
+
+  const resetModalNavigationPosition = () => {
+    modalPrevious.style.removeProperty("left");
+    modalPrevious.style.removeProperty("top");
+    modalNext.style.removeProperty("right");
+    modalNext.style.removeProperty("top");
+  };
+
+  const updateModalNavigationPosition = () => {
+    if (!modal.classList.contains("image-modal--carousel")) {
+      resetModalNavigationPosition();
+      return;
+    }
+
+    const imageRect = modalImage.getBoundingClientRect();
+    if (!imageRect.width || !imageRect.height) return;
+
+    const previousOffset = Math.max(0, imageRect.left);
+    const nextOffset = Math.max(
+      0,
+      window.innerWidth - imageRect.right
+    );
+    const verticalCenter = imageRect.top + imageRect.height / 2;
+
+    modalPrevious.style.left = `${Math.round(previousOffset)}px`;
+    modalPrevious.style.top = `${Math.round(verticalCenter)}px`;
+    modalNext.style.right = `${Math.round(nextOffset)}px`;
+    modalNext.style.top = `${Math.round(verticalCenter)}px`;
   };
 
   const prefersReducedData = () => {
@@ -978,24 +1286,49 @@ function setupPreviewZoom() {
       ? "video"
       : "image";
 
-  const getTriggerPreviewSrc = (trigger) =>
-    trigger.querySelector("img")?.getAttribute("src") || "";
+  const getTriggerPreviewSrc = (trigger) => {
+    const activeCarouselSlide = trigger.querySelector(
+      ".image-carousel__slide.is-active"
+    );
 
-  const getTriggerFullSrc = (trigger) =>
-    trigger.getAttribute("data-full-src") ||
-    trigger.getAttribute("src") ||
-    trigger.querySelector("video, img")?.getAttribute("src");
+    return (
+      activeCarouselSlide?.getAttribute("src") ||
+      trigger.querySelector("img")?.getAttribute("src") ||
+      ""
+    );
+  };
+
+  const getTriggerFullSrc = (trigger) => {
+    const activeCarouselSlide = trigger.querySelector(
+      ".image-carousel__slide.is-active"
+    );
+
+    return (
+      activeCarouselSlide?.getAttribute("data-full-src") ||
+      trigger.getAttribute("data-full-src") ||
+      trigger.getAttribute("src") ||
+      trigger.querySelector("video, img")?.getAttribute("src")
+    );
+  };
 
   const getTriggerLabel = (trigger) => {
     const caption = trigger.querySelector(".image-block__caption, .image-block__tag");
     const pageTitle = document.querySelector("h1")?.textContent?.trim();
-    const label = caption?.textContent?.trim() || pageTitle || "изображение";
+    const label =
+      trigger.getAttribute("data-zoom-label") ||
+      caption?.textContent?.trim() ||
+      pageTitle ||
+      "изображение";
     return `Открыть: ${label}`;
   };
 
   const preloadImageAsset = (src, fetchPriority = "low") => {
     if (!src) {
       return Promise.resolve("");
+    }
+
+    if (loadedImageAssets.has(src)) {
+      return Promise.resolve(src);
     }
 
     if (imagePreloadCache.has(src)) {
@@ -1006,7 +1339,14 @@ function setupPreviewZoom() {
       const preloader = new Image();
       preloader.decoding = "async";
       preloader.fetchPriority = fetchPriority;
-      preloader.onload = () => resolve(src);
+      preloader.onload = async () => {
+        if (typeof preloader.decode === "function") {
+          await preloader.decode().catch(() => {});
+        }
+
+        loadedImageAssets.add(src);
+        resolve(src);
+      };
       preloader.onerror = reject;
       preloader.src = src;
     }).catch((error) => {
@@ -1017,6 +1357,18 @@ function setupPreviewZoom() {
 
     imagePreloadCache.set(src, preloadPromise);
     return preloadPromise;
+  };
+
+  const setModalImageSource = (previewSrc, fullSrc) => {
+    if (!fullSrc) return;
+
+    const isFullImageReady = loadedImageAssets.has(fullSrc);
+    modalImage.dataset.fullSrcTarget = fullSrc;
+    modalImage.src = isFullImageReady ? fullSrc : previewSrc || fullSrc;
+
+    if (!isFullImageReady) {
+      void swapModalImageToFullRes(fullSrc);
+    }
   };
 
   const swapModalImageToFullRes = async (fullSrc) => {
@@ -1050,8 +1402,51 @@ function setupPreviewZoom() {
     updateModalCloseChrome();
   };
 
-  const primeTriggerFullImage = (trigger, fetchPriority = "low") => {
+  const showModalCarouselSlide = (direction) => {
+    const controller = imageCarouselControllers.get(activeModalCarousel);
+    if (!controller || !modal.classList.contains("is-active")) return;
+
+    controller.showSlide(controller.getCurrentIndex() + direction);
+
+    const slides = controller.getSlides();
+    const currentIndex = controller.getCurrentIndex();
+    const activeSlide = slides[currentIndex];
+    const previewSrc = activeSlide?.getAttribute("src") || "";
+    const fullSrc = activeSlide?.getAttribute("data-full-src") || previewSrc;
+
+    if (!fullSrc) return;
+
+    resetModalImageZoom();
+    setModalImageSource(previewSrc, fullSrc);
+    modal.setAttribute(
+      "aria-label",
+      `Просмотр изображения ${currentIndex + 1} из ${slides.length}`
+    );
+    requestAnimationFrame(updateModalNavigationPosition);
+  };
+
+  const primeTriggerFullImages = (trigger, fetchPriority = "low") => {
     if (getTriggerType(trigger) !== "image") return;
+
+    const carousel = trigger.closest("[data-image-carousel]");
+    const carouselController = imageCarouselControllers.get(carousel);
+
+    if (carouselController) {
+      const fullSources = new Set(
+        carouselController
+          .getSlides()
+          .map(
+            (slide) =>
+              slide.getAttribute("data-full-src") || slide.getAttribute("src")
+          )
+          .filter(Boolean)
+      );
+
+      fullSources.forEach((fullSource) => {
+        void preloadImageAsset(fullSource, fetchPriority);
+      });
+      return;
+    }
 
     const fullSrc = getTriggerFullSrc(trigger);
     const previewSrc = getTriggerPreviewSrc(trigger);
@@ -1060,9 +1455,25 @@ function setupPreviewZoom() {
     void preloadImageAsset(fullSrc, fetchPriority);
   };
 
-  const openModal = (trigger) => {
+  const openModal = (trigger, { restoreTriggerFocus = false } = {}) => {
     const fullSrc = getTriggerFullSrc(trigger);
     if (!fullSrc) return;
+
+    activeModalTrigger = trigger;
+    const carousel = trigger.closest("[data-image-carousel]");
+    activeModalCarousel =
+      carousel && imageCarouselControllers.has(carousel) ? carousel : null;
+    shouldRestoreTriggerFocus = restoreTriggerFocus;
+
+    const carouselController = imageCarouselControllers.get(activeModalCarousel);
+    if (carouselController) {
+      modal.setAttribute(
+        "aria-label",
+        `Просмотр изображения ${carouselController.getCurrentIndex() + 1} из ${carouselController.getSlides().length}`
+      );
+    } else {
+      modal.setAttribute("aria-label", "Просмотр медиа");
+    }
 
     const isVideo = getTriggerType(trigger) === "video";
     const scrollbarWidth =
@@ -1070,7 +1481,11 @@ function setupPreviewZoom() {
 
     document.body.style.paddingRight = `${Math.max(scrollbarWidth, 0)}px`;
     modalClose.classList.remove("is-closing");
-    modal.classList.remove("image-modal--image", "image-modal--video");
+    modal.classList.remove(
+      "image-modal--image",
+      "image-modal--video",
+      "image-modal--carousel"
+    );
     resetModalImageZoom();
     resetModalCloseChrome();
 
@@ -1083,26 +1498,43 @@ function setupPreviewZoom() {
       const previewSrc = getTriggerPreviewSrc(trigger);
 
       modal.classList.add("image-modal--image");
-      modalImage.dataset.fullSrcTarget = fullSrc;
-      modalImage.src = previewSrc || fullSrc;
-      void swapModalImageToFullRes(fullSrc);
+      modal.classList.toggle("image-modal--carousel", Boolean(activeModalCarousel));
+      primeTriggerFullImages(trigger, "high");
+      setModalImageSource(previewSrc, fullSrc);
     }
 
     modal.classList.add("is-active");
     modal.setAttribute("aria-hidden", "false");
     document.body.classList.add("image-modal-open");
     document.documentElement.classList.add("image-modal-open");
-    requestAnimationFrame(updateModalCloseChrome);
+    requestAnimationFrame(() => {
+      updateModalCloseChrome();
+      updateModalNavigationPosition();
+      modalClose.focus({ preventScroll: true });
+    });
   };
 
   const closeModal = () => {
     if (!modal.classList.contains("is-active")) return;
 
+    const triggerToRestore = activeModalTrigger;
+    const restoreTriggerFocus = shouldRestoreTriggerFocus;
+
     swipeDismissState.active = false;
+    swipeDismissState.carouselNavigation = false;
     resetModalImageZoom();
     modalClose.classList.add("is-closing");
     resetModalCloseChrome();
     closeImageModalElement(modal, { blurActive: true });
+    activeModalTrigger = null;
+    activeModalCarousel = null;
+    shouldRestoreTriggerFocus = false;
+    resetModalNavigationPosition();
+
+    if (restoreTriggerFocus && triggerToRestore?.isConnected) {
+      triggerToRestore.focus({ preventScroll: true });
+    }
+
     requestAnimationFrame(() => modalClose.classList.remove("is-closing"));
   };
 
@@ -1112,7 +1544,7 @@ function setupPreviewZoom() {
     const previewTrigger = document.querySelector(".preview-block[data-full-src]");
     if (previewTrigger) {
       const schedulePreviewPreload = () =>
-        window.setTimeout(() => primeTriggerFullImage(previewTrigger, "high"), 250);
+        window.setTimeout(() => primeTriggerFullImages(previewTrigger, "high"), 250);
 
       if ("requestIdleCallback" in window) {
         window.requestIdleCallback(schedulePreviewPreload, { timeout: 1000 });
@@ -1127,7 +1559,7 @@ function setupPreviewZoom() {
           entries.forEach((entry) => {
             if (!entry.isIntersecting) return;
 
-            primeTriggerFullImage(entry.target, "low");
+            primeTriggerFullImages(entry.target, "low");
             currentObserver.unobserve(entry.target);
           });
         },
@@ -1143,7 +1575,7 @@ function setupPreviewZoom() {
   };
 
   zoomTriggers.forEach((trigger) => {
-    const preloadOnIntent = () => primeTriggerFullImage(trigger, "high");
+    const preloadOnIntent = () => primeTriggerFullImages(trigger, "high");
 
     trigger.setAttribute("role", "button");
     trigger.setAttribute("tabindex", "0");
@@ -1168,7 +1600,7 @@ function setupPreviewZoom() {
       (event) => {
         if (event.key !== "Enter" && event.key !== " ") return;
         event.preventDefault();
-        openModal(trigger);
+        openModal(trigger, { restoreTriggerFocus: true });
       },
       { signal: pageLifecycle.signal }
     );
@@ -1176,9 +1608,14 @@ function setupPreviewZoom() {
 
   scheduleModalImagePreloads();
 
-  modalImage.addEventListener("load", updateModalCloseChrome, {
-    signal: pageLifecycle.signal,
-  });
+  modalImage.addEventListener(
+    "load",
+    () => {
+      updateModalCloseChrome();
+      updateModalNavigationPosition();
+    },
+    { signal: pageLifecycle.signal }
+  );
   modalVideo.addEventListener("loadedmetadata", updateModalCloseChrome, {
     signal: pageLifecycle.signal,
   });
@@ -1186,6 +1623,7 @@ function setupPreviewZoom() {
     "resize",
     () => {
       updateModalCloseChrome();
+      updateModalNavigationPosition();
 
       const resultBlock = document.querySelector(".image-block.result");
       if (resultBlock && modal.classList.contains("image-modal--image")) {
@@ -1216,13 +1654,33 @@ function setupPreviewZoom() {
     signal: pageLifecycle.signal,
   });
 
+  modalPrevious.addEventListener(
+    "click",
+    (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      showModalCarouselSlide(-1);
+    },
+    { signal: pageLifecycle.signal }
+  );
+
+  modalNext.addEventListener(
+    "click",
+    (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      showModalCarouselSlide(1);
+    },
+    { signal: pageLifecycle.signal }
+  );
+
   modal.addEventListener(
     "click",
     (event) => {
       if (!modal.classList.contains("is-active")) return;
       const target = event.target;
       if (!(target instanceof Element)) return;
-      if (target.closest(".image-modal__close")) return;
+      if (target.closest(".image-modal__close, .image-modal__navigation")) return;
       if (target.closest(".image-modal__image, .image-modal__video")) return;
       closeModal();
     },
@@ -1233,14 +1691,15 @@ function setupPreviewZoom() {
     "touchstart",
     (event) => {
       if (!modal.classList.contains("is-active")) return;
-      if (!isMobileImageModal()) return;
-      if (event.target.closest(".image-modal__close")) return;
+      if (!isMobileImageModal() && !isModalCarouselSwipeEnabled()) return;
+      if (event.target.closest(".image-modal__close, .image-modal__navigation")) return;
 
       const isImageModal = modal.classList.contains("image-modal--image");
 
       if (isImageModal && event.touches.length === 2) {
-        event.preventDefault();
+        if (event.cancelable) event.preventDefault();
         swipeDismissState.active = false;
+        swipeDismissState.carouselNavigation = false;
         modalImageZoomState.isPinching = true;
         modalImageZoomState.isPanning = false;
         modalImageZoomState.pinchStartDistance = getTouchDistance(
@@ -1257,6 +1716,7 @@ function setupPreviewZoom() {
         modalImageZoomState.scale > 1
       ) {
         swipeDismissState.active = false;
+        swipeDismissState.carouselNavigation = false;
         modalImageZoomState.isPanning = true;
         modalImageZoomState.isPinching = false;
         modalImageZoomState.panLastX = event.touches[0].clientX;
@@ -1267,6 +1727,9 @@ function setupPreviewZoom() {
       if (event.touches.length !== 1) return;
 
       swipeDismissState.active = true;
+      swipeDismissState.carouselNavigation =
+        isModalCarouselSwipeEnabled() &&
+        Boolean(event.target.closest(".image-modal__image"));
       swipeDismissState.startX = event.touches[0].clientX;
       swipeDismissState.startY = event.touches[0].clientY;
     },
@@ -1277,8 +1740,8 @@ function setupPreviewZoom() {
     "touchmove",
     (event) => {
       if (!modal.classList.contains("is-active")) return;
-      if (!isMobileImageModal()) return;
-      if (event.target.closest(".image-modal__close")) return;
+      if (!isMobileImageModal() && !isModalCarouselSwipeEnabled()) return;
+      if (event.target.closest(".image-modal__close, .image-modal__navigation")) return;
 
       const isImageModal = modal.classList.contains("image-modal--image");
 
@@ -1287,7 +1750,7 @@ function setupPreviewZoom() {
         modalImageZoomState.isPinching &&
         event.touches.length >= 2
       ) {
-        event.preventDefault();
+        if (event.cancelable) event.preventDefault();
         const distance = getTouchDistance(event.touches[0], event.touches[1]);
         const ratio = distance / modalImageZoomState.pinchStartDistance;
         const nextScale = clampModalImageZoom(
@@ -1311,7 +1774,7 @@ function setupPreviewZoom() {
         event.touches.length === 1 &&
         modalImageZoomState.scale > 1
       ) {
-        event.preventDefault();
+        if (event.cancelable) event.preventDefault();
         const touch = event.touches[0];
         modalImageZoomState.translateX += touch.clientX - modalImageZoomState.panLastX;
         modalImageZoomState.translateY += touch.clientY - modalImageZoomState.panLastY;
@@ -1327,13 +1790,29 @@ function setupPreviewZoom() {
       const touch = event.touches[0];
       const deltaX = touch.clientX - swipeDismissState.startX;
       const deltaY = touch.clientY - swipeDismissState.startY;
+      const horizontalDistance = Math.abs(deltaX);
       const verticalDistance = Math.abs(deltaY);
 
       if (
+        swipeDismissState.carouselNavigation &&
+        horizontalDistance >= MODAL_CAROUSEL_SWIPE_MIN_DISTANCE &&
+        verticalDistance <=
+          horizontalDistance * MODAL_CAROUSEL_SWIPE_MAX_OFF_AXIS_RATIO
+      ) {
+        if (event.cancelable) event.preventDefault();
+        swipeDismissState.active = false;
+        swipeDismissState.carouselNavigation = false;
+        showModalCarouselSlide(deltaX < 0 ? 1 : -1);
+        return;
+      }
+
+      if (
+        isMobileImageModal() &&
         verticalDistance >= MODAL_SWIPE_DISMISS_MIN_DISTANCE &&
         Math.abs(deltaX) <= verticalDistance * 0.75
       ) {
         swipeDismissState.active = false;
+        swipeDismissState.carouselNavigation = false;
         closeModal();
       }
     },
@@ -1357,6 +1836,7 @@ function setupPreviewZoom() {
       modalImageZoomState.isPinching = false;
       modalImageZoomState.isPanning = false;
       swipeDismissState.active = false;
+      swipeDismissState.carouselNavigation = false;
     }
   };
 
@@ -1375,10 +1855,15 @@ function setupPreviewZoom() {
   });
 
   if (window.visualViewport) {
-    window.visualViewport.addEventListener("resize", updateModalCloseChrome, {
+    const updateModalViewportChrome = () => {
+      updateModalCloseChrome();
+      updateModalNavigationPosition();
+    };
+
+    window.visualViewport.addEventListener("resize", updateModalViewportChrome, {
       signal: pageLifecycle.signal,
     });
-    window.visualViewport.addEventListener("scroll", updateModalCloseChrome, {
+    window.visualViewport.addEventListener("scroll", updateModalViewportChrome, {
       signal: pageLifecycle.signal,
     });
   }
@@ -1386,8 +1871,19 @@ function setupPreviewZoom() {
   document.addEventListener(
     "keydown",
     (event) => {
-      if (event.key !== "Escape" || event.repeat) return;
       if (!modal.classList.contains("is-active")) return;
+      if (event.repeat) return;
+
+      if (
+        modal.classList.contains("image-modal--carousel") &&
+        (event.key === "ArrowLeft" || event.key === "ArrowRight")
+      ) {
+        event.preventDefault();
+        showModalCarouselSlide(event.key === "ArrowRight" ? 1 : -1);
+        return;
+      }
+
+      if (event.key !== "Escape") return;
 
       event.preventDefault();
       closeModal();
@@ -1562,10 +2058,7 @@ const schedulePagePreload = () => {
   window.setTimeout(preloadRemainingPages, 200);
 };
 
-const renderCachedPage = async (
-  pageName,
-  { skipAnimation = false, updateHistory = false } = {}
-) => {
+const renderCachedPage = async (pageName, { updateHistory = false } = {}) => {
   if (isPageNavigationRendering) return;
   isPageNavigationRendering = true;
 
@@ -1576,6 +2069,7 @@ const renderCachedPage = async (
 
     document.title = parsed.title;
     document.body.className = parsed.body.className;
+    document.body.classList.remove("reveal-ready");
     document.body.innerHTML = parsed.body.innerHTML;
 
     if (preservedModal) {
@@ -1583,13 +2077,6 @@ const renderCachedPage = async (
     }
 
     window.scrollTo(0, 0);
-
-    if (skipAnimation) {
-      document.body.classList.add("no-anim");
-      requestAnimationFrame(() => {
-        document.body.classList.remove("no-anim");
-      });
-    }
 
     if (updateHistory === "push") {
       window.history.pushState({ page: pageName }, "", getPageUrl(pageName));
@@ -1630,7 +2117,7 @@ function setupPageNavigation() {
 
       event.preventDefault();
       cacheCurrentDocument();
-      void renderCachedPage(pageName, { skipAnimation: true, updateHistory: "push" });
+      void renderCachedPage(pageName, { updateHistory: "push" });
     },
     true
   );
@@ -1638,7 +2125,7 @@ function setupPageNavigation() {
   window.addEventListener("popstate", () => {
     cacheCurrentDocument();
     const pageName = getCurrentPageName();
-    void renderCachedPage(pageName, { skipAnimation: true, updateHistory: false });
+    void renderCachedPage(pageName, { updateHistory: false });
   });
 
   cacheCurrentDocument();
@@ -1655,6 +2142,7 @@ function initPortfolioPage() {
   resetPageLifecycle();
   closeActiveImageModal();
 
+  setupPageReveal();
   handleInitialHashScroll();
   setupNonBreakingShortWords();
   setupCopyEmailButton();
@@ -1662,6 +2150,7 @@ function initPortfolioPage() {
   setupScrollToTop();
   setupPageAnchorNav();
   setupResultImageResponsive();
+  setupImageCarousels();
   setupPreviewZoom();
   setupSaveFileButton();
 }

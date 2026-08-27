@@ -2,6 +2,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
+    <script>document.documentElement.classList.add("js-enabled");</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Кейс о проектировании единой точки работы с договором, счетами, актами и УПД для менеджеров." />
     <meta name="theme-color" content="#141414" />
@@ -13,19 +14,19 @@
       href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260827-10" />
     <link rel="prefetch" href="./index.html" />
-    <script src="components.js" defer></script>
-    <script src="script.js" defer></script>
+    <script src="components.js?v=20260827-7" defer></script>
+    <script src="script.js?v=20260827-11" defer></script>
   </head>
   <body class="page case-study">
     <main class="main anchor-top" id="agreement-card-top">
-      <header class="header anim-load anim-delay-1" data-component="case-header"></header>
-      <div class="story-content anim-load anim-delay-2">
+      <header class="header" data-component="case-header"></header>
+      <div class="story-content">
         <h1 class="story-content__title">Карточка договора</h1>
         <p class="story-content__description">Как договор перестал быть просто файлом и стал единой точкой работы для менеджера</p>
       </div>
-      <div class="before-after anim-load anim-delay-3">
+      <div class="before-after">
         <div
           class="image-block image-block--tagged"
           data-full-src="./src/img/d-before@4x.webp"
@@ -61,47 +62,28 @@
           </div>
         </div>
       </div>
-      <div
-        class="image-block result anim-load anim-delay-4"
-        data-full-src="./src/img/d-result@4x.webp"
-      >
-        <div class="image-block__container">
-          <img
-            class="image-block__image"
-            src="./src/img/d-result.webp"
-            alt=""
-            width="720"
-            height="609"
-            loading="lazy"
-            decoding="async"
-          >
-        </div>
-      </div>
-      <section class="story-section anchor-section anim-load anim-delay-5" id="ac-context">
-        <h2 class="story-section__title">Контекст</h2>
-        <p class="story-section__description">
-          Чтобы собрать полный контекст по договору, менеджер переключался между 1C, корпоративным сайтом и своими заметками
-        </p>
-        <p class="story-section__description">
-          Ключевые сценарии (выставить счёт → оформить УПД → проверить документы) занимали много времени и были подвержены ошибкам
-        </p>
-      </section>
-      <section class="story-section anchor-section anim-load anim-delay-6" id="ac-problem">
+      <section class="story-section anchor-section" id="ac-context">
         <h2 class="story-section__title">Проблема</h2>
         <p class="story-section__description">
-          Работа с контрагентами велась в 1C, а процессы коммерции и юр. отдела — в корпоративном сайте. Договор не был единой точкой работы. Чтобы понять статус и следующие шаги, менеджер переключался между системами, сопоставлял данные вручную и держал последовательность действий в голове. Это тормозило ключевые сценарии и повышало риск ошибок
+          Менеджеры работали с договорами в разрозненных системах, из-за чего резко возрастал риск ошибок
         </p>
       </section>
-      <section class="story-section anchor-section anim-load anim-delay-7" id="ac-role">
-        <h2 class="story-section__title">Роль</h2>
+      <section class="story-section anchor-section">
+        <h2 class="story-section__title">Задача</h2>
         <p class="story-section__description">
-          Провёл глубинные интервью с менеджерами коммерческого отдела, выявил основные шаги и боли при работе с договором, сформулировал job stories и ключевую гипотезу решения. Работал в связке с продуктовым менеджером
+          Создать единый источник данных по договорам, объединяющий учетную систему 1С и корпоративный сайт
+        </p>
+      </section>
+      <section class="story-section anchor-section">
+        <h2 class="story-section__title">Моя роль</h2>
+        <p class="story-section__description">
+          Продуктовый дизайнер
         </p>
       </section>
       <section class="story-section anchor-section" id="ac-approach">
-        <h2 class="story-section__title">Подход</h2>
+        <h2 class="story-section__title">Процесс работы</h2>
         <p class="story-section__description">
-          После получения задачи провёл интервью с коллегами из коммерческого отдела и на их основе собрал main steps и ограничения 
+          Исследовал рабочие сценарии коммерческого отдела и собрал ключевые шаги
         </p>
       </section>
       <div
@@ -123,45 +105,35 @@
       </div>
       <section class="story-section">
         <p class="story-section__description">
-          Чтобы глубже понять предметную логику, самостоятельно изучил текущую работу с договором в 1С через 1С:Fresh — веб-версию системы, доступную в браузере
-        </p>
-        <p class="story-section__description">
-          Разобрал ключевые сценарии: связь договора со счетами, УПД и доп. соглашениями, статусную модель документов, а также создание контрагентов и услуг. Это позволило выделить паттерны, которые легли в основу логики интерфейса
-        </p>
-        <p class="story-section__description">
-          Сформулировал job stories, которые охватывали полное взаимодействие с договором
+          По итогам серии глубинок, детализировал проблему. Что выяснилось на самом деле:
         </p>
       </section>
-      <div class="job-stories-list">
-        <div class="job-stories-list__item">
-          <div class="job-stories-list__text">Когда я открываю договор, я хочу сразу видеть все связанные с ним сущности, чтобы не переключаться между разделами</div>
+      <div class="block-list">
+        <div class="block-list__item">
+          <div class="block-list__text">Файлы и договоры приходится хранить локально на компьютере</div>
         </div>
-        <div class="job-stories-list__item">
-          <div class="job-stories-list__text">Когда я проверяю договор перед завершением работы, я хочу быстро убедиться, что к нему привязаны все обязательные документы, чтобы не хранить их у себя локально</div>
+        <div class="block-list__item">
+          <div class="block-list__text">Пользователь работает попутно в других системах</div>
         </div>
-        <div class="job-stories-list__item">
-          <div class="job-stories-list__text">Когда я выставляю счёт по договору, я хочу, чтобы система автоматически подтягивала связанные данные по договору и услугам, чтобы сократить ручные действия и снизить риск ошибок</div>
+        <div class="block-list__item">
+          <div class="block-list__text">Для гос. заказчиков отсутствует автоматизация выставления УПД</div>
         </div>
-        <div class="job-stories-list__item">
-          <div class="job-stories-list__text">Когда счёт уже выставлен, я хочу получать напоминания о необходимости оформить УПД и о приближении срока оплаты, чтобы не пропускать следующие обязательные действия по договору</div>
+        <div class="block-list__item">
+          <div class="block-list__text">Счета и связанные с ними договоры находятся в разных вкладках</div>
         </div>
-        <div class="job-stories-list__item">
-          <div class="job-stories-list__text">Когда я выставляю счёт гос. заказчику, я хочу сразу сформировать УПД, чтобы не пропустить обязательный документ и избежать серьёзных последствий в работе с заказчиком</div>
+        <div class="block-list__item">
+          <div class="block-list__text">Приходится запоминать номер договора из реестра</div>
         </div>
-        <div class="job-stories-list__caption">Job stories</div>
+        <div class="block-list__item">
+          <div class="block-list__text">УПД по коммерческим контрактам никак не выделяются</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Услуги не привязаны к договорам и дополнительным соглашениям</div>
+        </div>
       </div>
       <section class="story-section">
         <p class="story-section__description">
-          На основе интервью, main steps и job stories была сформулирована ключевая гипотеза решения
-        </p>
-        <p class="story-section__description">
-          Если мы объединим все связанные документы на одном экране договора и внедрим систему триггерных уведомлений (особенно для УПД и госконтрактов), то это избавит пользователя от хаотичного переключения между разделами и локального хранения файлов, а также минимизирует риски просрочек и финансовых потерь
-        </p>
-      </section>
-      <section class="story-section anchor-section" id="ac-solution">
-        <h2 class="story-section__title">Решение</h2>
-        <p class="story-section__description">
-          Первым шагом собрал data model. Определил, какие сущности связаны с договором, какие поля обязательны для договора, контрагента, счета и УПД, и какие зависимости между ними нужно учесть в интерфейсе
+          Изучил текущую работу с договором в 1С через 1С:Fresh – веб-версию системы и следом собрал data model
         </p>
       </section>
       <div
@@ -180,6 +152,28 @@
           >
         </div>
         <div class="image-block__caption">Data-model</div>
+      </div>
+      <section class="story-section">
+        <p class="story-section__description">
+          Разобрал ключевые сценарии: связь договора со счетами, УПД и доп. соглашениями, а также создание контрагентов и услуг
+        </p>
+      </section>
+      <div
+        class="image-block"
+        data-full-src="./src/img/d-excel@4x.webp"
+      >
+        <div class="image-block__container">
+          <img
+            class="image-block__image"
+            src="./src/img/d-excel.webp"
+            alt=""
+            width="2760"
+            height="1436"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+        <div class="image-block__caption">Excel-табличка сценариев</div>
       </div>
       <section class="story-section">
         <p class="story-section__description">
@@ -203,84 +197,289 @@
         </div>
         <div class="image-block__caption">Flow статусов</div>
       </div>
-      <section class="story-section">
+      <section class="story-section anchor-section" id="ac-job-story">
+        <h2 class="story-section__title">Job Story</h2>
         <p class="story-section__description">
-          Следующим этапом стало создание единого пространства для работы с договорами и счетами
+          Сформулировал job stories, которые охватывали полное взаимодействие с договором
+        </p>
+      </section>
+      <div class="block-list">
+        <div class="block-list__item">
+          <div class="block-list__text">Когда я открываю договор, <span class="white-selection">я хочу сразу видеть все связанные с ним сущности</span>, чтобы не переключаться между разделами</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Когда я проверяю договор перед завершением работы, <span class="white-selection">я хочу убедиться, что к нему привязаны все обязательные документы</span>, чтобы не хранить их у себя локально</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Когда я выставляю счёт по договору, <span class="white-selection">я хочу, чтобы система автоматически подтягивала связанные данные по договору и услугам</span>, чтобы сократить ручные действия и снизить риск ошибок</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Когда счёт уже выставлен, <span class="white-selection">я хочу получать напоминания о необходимости оформить УПД и о приближении срока оплаты</span>, чтобы не пропускать следующие обязательные действия по договору</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Когда я выставляю счёт гос. заказчику, <span class="white-selection">я хочу сразу сформировать УПД</span>, чтобы не пропустить обязательный документ и избежать серьёзных последствий в работе с заказчиком</div>
+        </div>
+      </div>
+      <section class="story-section anchor-section" id="ac-hypotheses">
+        <h2 class="story-section__title">Гипотезы</h2>
+        <p class="story-section__description">
+          На основе интервью, сценариев и job stories были сформулированы ключевые гипотезы:
+        </p>
+      </section>
+      <div class="block-list">
+        <div class="block-list__item">
+          <div class="block-list__text">Оптимизация и автоматизация сценариев работы с договорами снизит операционную нагрузку на менеджеров и исключит финансовые потери компании</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Сбор контекста и файлов на одной странице сократит переключения между системами и время выполнения задач</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Автоматическое подтягивание данных в счета исключит ошибки, возникающие из-за ручного ввода</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Автоматическая генерация УПД и контроль дедлайнов защитят от просрочек и штрафов</div>
+        </div>
+      </div>
+      <section class="story-section anchor-section" id="ac-solution">
+        <h2 class="story-section__title">Главный экран</h2>
+        <p class="story-section__description">
+          Задача: Объединить контекст договоров и счетов на одном экране для быстрой сверки документов
+        </p>
+        <p class="story-section__description">
+          Внедрил вложенную структуру счетов внутри договора и подсветил акцентными цветами критичные даты и статусы без необходимости ручной сверки
         </p>
       </section>
       <div
         class="image-block"
-        data-full-src="./src/img/d-main-table@4x.webp"
+        data-full-src="./src/img/d-table@4x.webp"
       >
         <div class="image-block__container">
           <img
             class="image-block__image"
-            src="./src/img/d-main-table.webp"
+            src="./src/img/d-table.webp"
             alt=""
             width="720"
-            height="450"
+            height="146"
             loading="lazy"
             decoding="async"
           >
         </div>
         <div class="image-block__caption">Таблица договоров и счетов</div>
       </div>
-      <section class="story-section">
+      <section class="story-section anchor-section">
+        <h2 class="story-section__title">Карточка договора</h2>
         <p class="story-section__description">
-          Первая итерация выглядела следующим образом
+          Задача: Собрать всю информацию по договору в одном месте, упростить работу с услугами и исключить необходимость хранить рабочие документы локально на ПК
+        </p>
+        <p class="story-section__description">
+          Спроектировал карточку договора с табами (Счета, Контакты, Услуги, Документы), расположив их по частоте использования
+        </p>
+        <p class="story-section__description">
+          В табе «Услуги» перешёл от абстрактных месяцев к точным датам действия и добавил указание источника (основной договор или доп. соглашение) для точного расчёта остатка услуг при выставлении счетов
+        </p>
+        <p class="story-section__description">
+          В табе «Документы» организовал хранение оригиналов, доп. соглашений и вложенных файлов прямо в карточке договора
         </p>
       </section>
-      <div
-        class="image-block"
-        data-full-src="./src/img/d-first-ver@4x.webp"
-      >
-        <div class="image-block__container">
-          <img
-            class="image-block__image"
-            src="./src/img/d-first-ver.webp"
-            alt=""
-            width="720"
-            height="450"
-            loading="lazy"
-            decoding="async"
+      <div class="image-block image-carousel" data-image-carousel>
+        <div class="image-carousel__stage">
+          <div
+            class="image-block__container image-carousel__viewport"
+            data-carousel-zoom
+            data-zoom-label="Итоговая карточка договора"
           >
+            <div class="image-carousel__track" data-carousel-track>
+              <img
+                class="image-block__image image-carousel__slide is-active"
+                src="./src/img/d-card-1.webp"
+                data-full-src="./src/img/d-card-1@4x.webp"
+                alt="Карточка договора — экран 1 из 4"
+                width="520"
+                height="325"
+                loading="lazy"
+                decoding="async"
+              >
+              <img
+                class="image-block__image image-carousel__slide"
+                src="./src/img/d-card-2.webp"
+                data-full-src="./src/img/d-card-2@4x.webp"
+                alt="Карточка договора — экран 2 из 4"
+                width="520"
+                height="325"
+                loading="lazy"
+                decoding="async"
+              >
+              <img
+                class="image-block__image image-carousel__slide"
+                src="./src/img/d-card-3.webp"
+                data-full-src="./src/img/d-card-3@4x.webp"
+                alt="Карточка договора — экран 3 из 4"
+                width="520"
+                height="325"
+                loading="lazy"
+                decoding="async"
+              >
+              <img
+                class="image-block__image image-carousel__slide"
+                src="./src/img/d-card-4.webp"
+                data-full-src="./src/img/d-card-4@4x.webp"
+                alt="Карточка договора — экран 4 из 4"
+                width="520"
+                height="325"
+                loading="lazy"
+                decoding="async"
+              >
+            </div>
+          </div>
+          <button
+            class="image-carousel__control image-carousel__control--previous"
+            type="button"
+            aria-label="Предыдущий экран"
+            data-carousel-previous
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M12.5 4.1665L6.66667 9.99984L12.5 15.8332" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button
+            class="image-carousel__control image-carousel__control--next"
+            type="button"
+            aria-label="Следующий экран"
+            data-carousel-next
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M7.5 4.1665L13.3333 9.99984L7.5 15.8332" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
-        <div class="image-block__caption">Первая итерация</div>
+        <div class="image-carousel__dots" aria-label="Выбор экрана">
+          <button class="image-carousel__dot is-active" type="button" aria-label="Экран 1" aria-current="true" data-carousel-dot="0"></button>
+          <button class="image-carousel__dot" type="button" aria-label="Экран 2" data-carousel-dot="1"></button>
+          <button class="image-carousel__dot" type="button" aria-label="Экран 3" data-carousel-dot="2"></button>
+          <button class="image-carousel__dot" type="button" aria-label="Экран 4" data-carousel-dot="3"></button>
+        </div>
+        <div class="image-block__caption">Итоговая карточка договора</div>
       </div>
-      <section class="story-section">
+      <section class="story-section anchor-section">
+        <h2 class="story-section__title">УПД для гос. контрактов</h2>
         <p class="story-section__description">
-          Первая итерация юзабилити-тестирования показала, что менеджерам очень важно держать под рукой не только доп. соглашения, но и сопутствующие файлы (акты, технические задания, спецификации и сканы)
+          Задача: Исключить риск просрочек и юридических ошибок по гос. контрактам из-за того, что менеджер выставляет счёт, но забывает сформировать УПД
         </p>
         <p class="story-section__description">
-          Вдобавок, необходимо разгрузить длинное боковое окно (drawer), я перепроектировал навигацию с помощью табов
+          Спроектировал 3-шаговый мастер создания счёта, где для гос. контрактов этап генерации УПД зафиксирован как обязательный
         </p>
         <p class="story-section__description">
-          Также для «услуг внедрения» не хватало поля «количество». В отличие от тех. сопровождения, одна и та же услуга внедрения может оказываться несколько раз за месяц
-        </p>
-        <p class="story-section__description">
-          Первым делом перепроектировал навигацию, все данные все еще в одной сущности, но выстроены разделы по иерархии
+          Настроил сквозную связку документов, теперь из карточки счёта можно в один клик перейти в связанный УПД или договор
         </p>
       </section>
-      <div
-        class="image-block"
-        data-full-src="./src/img/d-account@4x.webp"
-      >
-        <div class="image-block__container">
-          <img
-            class="image-block__image"
-            src="./src/img/d-account.webp"
-            alt=""
-            width="720"
-            height="450"
-            loading="lazy"
-            decoding="async"
+      <div class="image-block image-carousel" data-image-carousel data-carousel-name="d-close">
+        <div class="image-carousel__stage">
+          <div
+            class="image-block__container image-carousel__viewport"
+            data-carousel-zoom
+            data-zoom-label="Создание счета у гос. контракта"
           >
+            <div class="image-carousel__track" data-carousel-track>
+              <img
+                class="image-block__image image-carousel__slide is-active"
+                src="./src/img/d-close-1.webp"
+                data-full-src="./src/img/d-close-1@4x.webp"
+                alt="Создание счета у гос. контракта — экран 1 из 6"
+                width="520"
+                height="325"
+                loading="lazy"
+                decoding="async"
+              >
+              <img
+                class="image-block__image image-carousel__slide"
+                src="./src/img/d-close-2.webp"
+                data-full-src="./src/img/d-close-2@4x.webp"
+                alt="Создание счета у гос. контракта — экран 2 из 6"
+                width="520"
+                height="325"
+                loading="lazy"
+                decoding="async"
+              >
+              <img
+                class="image-block__image image-carousel__slide"
+                src="./src/img/d-close-3.webp"
+                data-full-src="./src/img/d-close-3@4x.webp"
+                alt="Создание счета у гос. контракта — экран 3 из 6"
+                width="520"
+                height="325"
+                loading="lazy"
+                decoding="async"
+              >
+              <img
+                class="image-block__image image-carousel__slide"
+                src="./src/img/d-close-4.webp"
+                data-full-src="./src/img/d-close-4@4x.webp"
+                alt="Создание счета у гос. контракта — экран 4 из 6"
+                width="520"
+                height="325"
+                loading="lazy"
+                decoding="async"
+              >
+              <img
+                class="image-block__image image-carousel__slide"
+                src="./src/img/d-close-5.webp"
+                data-full-src="./src/img/d-close-5@4x.webp"
+                alt="Создание счета у гос. контракта — экран 5 из 6"
+                width="520"
+                height="325"
+                loading="lazy"
+                decoding="async"
+              >
+              <img
+                class="image-block__image image-carousel__slide"
+                src="./src/img/d-close-6.webp"
+                data-full-src="./src/img/d-close-6@4x.webp"
+                alt="Создание счета у гос. контракта — экран 6 из 6"
+                width="520"
+                height="325"
+                loading="lazy"
+                decoding="async"
+              >
+            </div>
+          </div>
+          <button
+            class="image-carousel__control image-carousel__control--previous"
+            type="button"
+            aria-label="Предыдущий экран"
+            data-carousel-previous
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M12.5 4.1665L6.66667 9.99984L12.5 15.8332" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button
+            class="image-carousel__control image-carousel__control--next"
+            type="button"
+            aria-label="Следующий экран"
+            data-carousel-next
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M7.5 4.1665L13.3333 9.99984L7.5 15.8332" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
-        <div class="image-block__caption">Вкладка счетов – самое важное</div>
+        <div class="image-carousel__dots" aria-label="Выбор экрана">
+          <button class="image-carousel__dot is-active" type="button" aria-label="Экран 1" aria-current="true" data-carousel-dot="0"></button>
+          <button class="image-carousel__dot" type="button" aria-label="Экран 2" data-carousel-dot="1"></button>
+          <button class="image-carousel__dot" type="button" aria-label="Экран 3" data-carousel-dot="2"></button>
+          <button class="image-carousel__dot" type="button" aria-label="Экран 4" data-carousel-dot="3"></button>
+          <button class="image-carousel__dot" type="button" aria-label="Экран 5" data-carousel-dot="4"></button>
+          <button class="image-carousel__dot" type="button" aria-label="Экран 6" data-carousel-dot="5"></button>
+        </div>
+        <div class="image-block__caption">Создание счета у гос. контракта</div>
       </div>
-      <section class="story-section">
+      <section class="story-section anchor-section">
+        <h2 class="story-section__title">Учет услуг</h2>
         <p class="story-section__description">
-          Для услуг внедрения теперь идет расчет количества
+          Задача: Автоматизировать учёт выполненных услуг по договорам и доп. соглашениям без риска дублирования счетов
+        </p>
+        <p class="story-section__description">
+          Внедрил таблицу выбора услуг с учётом периодов оказания и источников. Автоматический пересчёт итоговой суммы и ограничение повторного выбора
         </p>
       </section>
       <div
@@ -293,38 +492,96 @@
             src="./src/img/d-services.webp"
             alt=""
             width="720"
-            height="450"
+            height="146"
             loading="lazy"
             decoding="async"
           >
         </div>
-        <div class="image-block__caption">Вкладка услуг</div>
+        <div class="image-block__caption">Учет предоставления услуги</div>
       </div>
-      <section class="story-section">
+      <section class="story-section anchor-section">
+        <h2 class="story-section__title">Контроль УПД</h2>
         <p class="story-section__description">
-          Во вкладке документы теперь можно и хранить вложенности, относящиеся к договору
+          Задача: Автоматизировать контроль закрывающих документов и исключить просрочки по УПД после оплаты счёта
+        </p>
+        <p class="story-section__description">
+          Внедрил динамическую систему статусов УПД с цветовыми акцентами для разных стадий<br>(Ожидается → Горит срок → Просрочен)
+        </p>
+        <p class="story-section__description">
+          Добавил обратный отсчёт дней до дедлайна и вынес быструю генерацию УПД прямо в карточку счёта, позволяя закрыть задачу в один клик
         </p>
       </section>
-      <div
-        class="image-block"
-        data-full-src="./src/img/d-files@4x.webp"
-      >
-        <div class="image-block__container">
-          <img
-            class="image-block__image"
-            src="./src/img/d-files.webp"
-            alt=""
-            width="720"
-            height="450"
-            loading="lazy"
-            decoding="async"
+      <div class="image-block image-carousel" data-image-carousel data-carousel-name="d-status">
+        <div class="image-carousel__stage">
+          <div
+            class="image-block__container image-carousel__viewport"
+            data-carousel-zoom
+            data-zoom-label="Статусы УПД"
           >
+            <div class="image-carousel__track" data-carousel-track>
+              <img
+                class="image-block__image image-carousel__slide is-active"
+                src="./src/img/d-status-1.webp"
+                data-full-src="./src/img/d-status-1@4x.webp"
+                alt="Статусы УПД — экран 1 из 3"
+                width="520"
+                height="325"
+                loading="lazy"
+                decoding="async"
+              >
+              <img
+                class="image-block__image image-carousel__slide"
+                src="./src/img/d-status-2.webp"
+                data-full-src="./src/img/d-status-2@4x.webp"
+                alt="Статусы УПД — экран 2 из 3"
+                width="520"
+                height="325"
+                loading="lazy"
+                decoding="async"
+              >
+              <img
+                class="image-block__image image-carousel__slide"
+                src="./src/img/d-status-3.webp"
+                data-full-src="./src/img/d-status-3@4x.webp"
+                alt="Статусы УПД — экран 3 из 3"
+                width="520"
+                height="325"
+                loading="lazy"
+                decoding="async"
+              >
+            </div>
+          </div>
+          <button
+            class="image-carousel__control image-carousel__control--previous"
+            type="button"
+            aria-label="Предыдущий экран"
+            data-carousel-previous
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M12.5 4.1665L6.66667 9.99984L12.5 15.8332" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button
+            class="image-carousel__control image-carousel__control--next"
+            type="button"
+            aria-label="Следующий экран"
+            data-carousel-next
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M7.5 4.1665L13.3333 9.99984L7.5 15.8332" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
-        <div class="image-block__caption">Вкладка документов</div>
+        <div class="image-carousel__dots" aria-label="Выбор экрана">
+          <button class="image-carousel__dot is-active" type="button" aria-label="Экран 1" aria-current="true" data-carousel-dot="0"></button>
+          <button class="image-carousel__dot" type="button" aria-label="Экран 2" data-carousel-dot="1"></button>
+          <button class="image-carousel__dot" type="button" aria-label="Экран 3" data-carousel-dot="2"></button>
+        </div>
+        <div class="image-block__caption">Статусы УПД</div>
       </div>
       <section class="story-section">
         <p class="story-section__description">
-          Итоговый вид всех сценариев для передачи в разработку
+          Итоговый вид всех сценариев
         </p>
       </section>
       <div
@@ -337,38 +594,30 @@
             src="./src/img/d-overview.webp"
             alt=""
             width="720"
-            height="450"
+            height="146"
             loading="lazy"
             decoding="async"
           >
         </div>
         <div class="image-block__caption">Общий вид на сценарии</div>
       </div>
-      <section class="story-section">
+      <section class="story-section anchor-section" id="ac-expected-effect">
+        <h2 class="story-section__title">Ожидаемый эффект</h2>
         <p class="story-section__description">
-          При проверке обновленного интерфейса, я провел второй раунд юзабилити-тестирования на кликабельном прототипе. Пользователям были предложены те же сквозные сценарии: проверка договора, выставление счета и формирование УПД для госорганов
+          Продукт готовится к разработке. Для оценки успешности решения на продакшене совместно с PM мы зафиксировали целевые метрики, на которые будем опираться после релиза: <span class="white-selection">ASAT</span>, <span class="white-selection">Error Rate</span> и <span class="white-selection">ToT</span>
         </p>
         <p class="story-section__description">
-          <span class="white-selection">Скорость</span> работы с договором <span class="white-selection">выросла на 40%</span>, благодаря навигации по табам и автоматическому подтягиванию данных из договора, пользователи перестали тратить время на переключение между 1С, корпоративным сайтом и локальными папками
+          Планируем <span class="white-selection">увеличить скорость работы</span> с договором <span class="white-selection">на 40% (ToT)</span>. Благодаря навигации по табам и автоподтягиванию данных, менеджеры перестанут тратить время на постоянное переключение между 1С, корпоративным сайтом и локальными папками
         </p>
         <p class="story-section__description">
-          Автозаполнение избавило менеджеров от рутины и <span class="white-selection">снизило количество ошибок на 17%</span>. Теперь система сама подтягивает нужные реквизиты и вовремя напоминает про УПД, снимая с человека страх что-то упустить или ошибиться в цифрах
+          Рассчитываем <span class="white-selection">снизить количество ошибок на 17% (Error Rate)</span>. Автозаполнение избавит от ручного ввода реквизитов, а умные напоминания про УПД помогут вовремя оформлять документы и снизят риск финансовых потерь
         </p>
-      </section>
-      <section class="story-section anchor-section" id="ac-result">
-        <h2 class="story-section__title">Итог</h2>
-        <p class="story-section__description">В результате работы над проектом я спроектировал концепт единой точки работы с договором, превратив его из статичного файла в интерактивный хаб для менеджера. Все связанные сущности (счета, акты, УПД) теперь бесшовно собираются в одном интерфейсе</p>
-        <p class="story-section__description">Продукт готовится к разработке. Для оценки успешности решения на продакшене совместно с PM мы зафиксировали целевые метрики, на которые будем опираться после релиза: <span class="white-selection">ASAT</span>, <span class="white-selection">ER</span> и <span class="white-selection">ToT</span></p>
-      </section>
-      <section class="story-section anchor-section" id="ac-reflection">
-        <h2 class="story-section__title">Рефлексия</h2>
-        <p class="story-section__description">Этот проект стал отличным вызовом. Работа с DMS-сценариями (Document Management System) требует глубокого понимания предметной области. Я научился не просто рисовать экраны, а сначала разбираться в тяжелой бизнес-логике, дата-моделях и связях сущностей</p>
       </section>
       <div class="action-block" data-component="case-actions"></div>
       <footer class="footer" data-component="site-footer"></footer>
     </main>
     <nav
-      class="page-anchor anim-load anim-delay-2"
+      class="page-anchor"
       aria-label="Навигация по разделам"
       data-anchor-nav
       data-component="case-anchor"

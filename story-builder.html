@@ -2,6 +2,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
+    <script>document.documentElement.classList.add("js-enabled");</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Кейс о проектировании конструктора сторисов, который ускорил создание сценариев и снизил количество ошибок." />
     <meta name="theme-color" content="#141414" />
@@ -13,22 +14,22 @@
       href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260827-10" />
     <link rel="prefetch" href="./index.html" />
-    <script src="components.js" defer></script>
-    <script src="script.js" defer></script>
+    <script src="components.js?v=20260827-7" defer></script>
+    <script src="script.js?v=20260827-11" defer></script>
   </head>
   <body class="page case-study">
     <main class="main anchor-top" id="story-builder-top">
-      <header class="header anim-load anim-delay-1" data-component="case-header"></header>
-      <div class="story-content anim-load anim-delay-2">
+      <header class="header" data-component="case-header"></header>
+      <div class="story-content">
         <h1 class="story-content__title">Конструктор сторисов</h1>
         <p class="story-content__description">
           Или как менеджеры начали создавать сторисы за 20 минут с минимальными ошибками
         </p>
       </div>
 
-      <div class="before-after anim-load anim-delay-3">
+      <div class="before-after">
         <div
           class="image-block image-block--tagged"
           data-full-src="./src/img/s-final@4x.webp"
@@ -48,7 +49,7 @@
         </div>
       </div>
       <div
-        class="image-block result anim-load anim-delay-4"
+        class="image-block result"
         data-full-src="./src/img/s-result@4x.webp"
       >
         <div class="image-block__container">
@@ -64,19 +65,19 @@
         </div>
       </div>
 
-      <section class="story-section anchor-section anim-load anim-delay-5" id="sb-context">
+      <section class="story-section anchor-section" id="sb-context">
         <h2 class="story-section__title">Контекст</h2>
         <p class="story-section__description">
           В мобильном приложении компании промо-сторисы используются как важный инструмент маркетинга и привлечения пользователей. Чтобы автоматизировать работу с этим контентом, мы с командой создали внутренний конструктор с готовыми пресетами
         </p>
       </section>
-      <section class="story-section anchor-section anim-load anim-delay-6" id="sb-problem">
+      <section class="story-section anchor-section" id="sb-problem">
         <h2 class="story-section__title">Проблема</h2>
         <p class="story-section__description">
           После запуска первой версии выяснилось, что при создании сложных цепочек сторис опытные менеджеры вынуждены вручную проверять каждый экран. Отсутствие обзора всей архитектуры сильно замедляло работу и приводило к публикации неработающих сценариев на проде
         </p>
       </section>
-      <section class="story-section anchor-section anim-load anim-delay-7" id="sb-role">
+      <section class="story-section anchor-section" id="sb-role">
         <h2 class="story-section__title">Роль</h2>
         <p class="story-section__description">
           В рамках этой задачи я отвечал за проведение юзабилити-тестирования, конкурентный анализ, описание пользовательских сценариев и проектирование макетов. Все визуальные и логические решения проходили регулярное дизайн-ревью со старшим дизайнером
@@ -317,7 +318,7 @@
       <footer class="footer" data-component="site-footer"></footer>
     </main>
     <nav
-      class="page-anchor anim-load anim-delay-2"
+      class="page-anchor"
       aria-label="Навигация по разделам"
       data-anchor-nav
       data-component="case-anchor"

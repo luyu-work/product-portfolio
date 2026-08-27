@@ -2,11 +2,11 @@ const CASE_COMPONENTS = {
   "agreement-card-top": [
     ["agreement-card-top", "Превью"],
     ["ac-context", "Контекст"],
-    ["ac-problem", "Проблема"],
-    ["ac-role", "Роль"],
-    ["ac-approach", "Подход"],
+    ["ac-approach", "Процесс работы"],
+    ["ac-job-story", "Job Story"],
+    ["ac-hypotheses", "Гипотезы"],
     ["ac-solution", "Решение"],
-    ["ac-result", "Итог"],
+    ["ac-expected-effect", "Ожидаемый эффект"],
   ],
   "story-builder-top": [
     ["story-builder-top", "Превью"],
@@ -85,20 +85,6 @@ const renderCaseAnchor = (element, items) => {
   `;
 };
 
-const preparePageAnimations = () => {
-  document.querySelectorAll(".action-block").forEach((element) => {
-    element.classList.remove("anim-load");
-    element.style.removeProperty("animation-delay");
-  });
-
-  document
-    .querySelectorAll(".main > *:not(.svg-sprite):not(.action-block)")
-    .forEach((element, index) => {
-      element.classList.add("anim-load");
-      element.style.animationDelay = `${(index + 1) * 50}ms`;
-    });
-};
-
 const renderPortfolioComponents = () => {
   const mainId = document.querySelector(".main")?.id || "";
   const anchorItems = CASE_COMPONENTS[mainId];
@@ -117,9 +103,6 @@ const renderPortfolioComponents = () => {
       .querySelectorAll('[data-component="case-anchor"]')
       .forEach((element) => renderCaseAnchor(element, anchorItems));
   }
-
-  preparePageAnimations();
 };
 
 window.renderPortfolioComponents = renderPortfolioComponents;
-preparePageAnimations();

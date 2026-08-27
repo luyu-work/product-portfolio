@@ -2,6 +2,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
+    <script>document.documentElement.classList.add("js-enabled");</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Портфолио UI/UX-дизайнера Данила Харисова: B2B, B2G и B2E-продукты, кейсы и опыт работы." />
     <meta name="theme-color" content="#141414" />
@@ -13,15 +14,15 @@
       href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260827-10" />
     <link rel="prefetch" href="./story-builder.html" />
     <link rel="prefetch" href="./agreement-card.html" />
-    <script src="components.js" defer></script>
-    <script src="script.js" defer></script>
+    <script src="components.js?v=20260827-7" defer></script>
+    <script src="script.js?v=20260827-11" defer></script>
   </head>
   <body class="page">
     <main class="main">
-      <header class="header anim-load anim-delay-1">
+      <header class="header">
         <div class="logo-wrapper">
           <img src="./src/icons/logo.svg" alt="" width="32" height="25" />
         </div>
@@ -37,7 +38,7 @@
         </button>
       </header>
       
-      <section class="home anim-load anim-delay-2">
+      <section class="home">
         <h1 class="home__title">Харисов Данил – продуктовый дизайнер</h1>
         <div class="home__subtitle">
           Специализируюсь на B2B, B2G и B2E проектах<br />Опыт 2+ года
@@ -67,7 +68,7 @@
         </div>
       </section>
 
-      <section class="projects anim-load anim-delay-3">
+      <section class="projects">
         <h2 class="projects__title">Проекты</h2>
         <div class="projects__list">
 
@@ -111,7 +112,7 @@
         </symbol>
       </svg>
 
-      <section class="work-list anim-load anim-delay-4">
+      <section class="work-list">
         <div class="work-list__title">
           <h2 class="work-list__title-text">
             Общий стаж<br />2 года и 8 месяц
@@ -153,7 +154,7 @@
               <div class="work-list__description-item">- проектирование концепта единой точки работы с договором и связанными сущностями в портале с интеграцией 1С;</div>
               <div class="work-list__description-item">- проведение исследования конкурентнов, интервью для поиска феноменов и инсайтов;</div>
               <div class="work-list__description-item">- организация и проведение A/B-тестирования гипотез по оптимизации интерфейса и функционала платформы, что позволило дополнительно привлечь новых клиентов;</div>
-              <div class="work-list__description-item">- сократил цикл согласования договоров на 40%, а также снизил количество ошибок ввода данных на 17%;</div>
+              <div class="work-list__description-item">- прогнозируемый прирост скорости работы на 40% и снижение ошибок ввода на 17%</div>
               <div class="work-list__description-item">- собирал data model для дальнейшей передачи в разработку;</div>
               <div class="work-list__description-item">- проверял решения на прототипах и дорабатывал их итеративно на основе обратной связи пользователей</div>
             </div>
@@ -237,7 +238,7 @@
         </div>
       </section>
 
-      <footer class="footer anim-load anim-delay-5" data-component="site-footer"></footer>
+      <footer class="footer" data-component="site-footer"></footer>
     </main>
   </body>
 </html>
