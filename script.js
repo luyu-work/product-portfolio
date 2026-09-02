@@ -1948,6 +1948,7 @@ const closeActiveImageModal = () => {
 const PORTFOLIO_PAGES = [
   "index.html",
   "agreement-card.html",
+  "exchange.html",
   "story-builder.html",
 ];
 
@@ -1987,6 +1988,7 @@ const getRenderedPageName = () => {
   const mainId = document.querySelector(".main")?.id;
 
   if (mainId === "agreement-card-top") return "agreement-card.html";
+  if (mainId === "exchange-top") return "exchange.html";
   if (mainId === "story-builder-top") return "story-builder.html";
   return "index.html";
 };

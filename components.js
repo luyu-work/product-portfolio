@@ -17,6 +17,15 @@ const CASE_COMPONENTS = {
     ["sb-solution", "Решение"],
     ["sb-result", "Итог"],
   ],
+  "exchange-top": [
+    ["exchange-top", "Превью"],
+    ["ex-context", "Контекст"],
+    ["ex-approach", "Процесс работы"],
+    ["ex-job-story", "Job Story"],
+    ["ex-hypotheses", "Гипотезы"],
+    ["ex-user-flow", "User-flow"],
+    ["ex-solution", "Решение"],
+  ],
 };
 
 const PAGE_DESCRIPTIONS = {
@@ -25,6 +34,7 @@ const PAGE_DESCRIPTIONS = {
     "Кейс о проектировании единой точки работы с договором, счетами, актами и УПД для менеджеров.",
   "story-builder-top":
     "Кейс о проектировании конструктора сторисов, который ускорил создание сценариев и снизил количество ошибок.",
+  "exchange-top": "Кейс Exchange: как провести пользователя через повышение лимита.",
 };
 
 const HOME_BUTTON_MARKUP = `

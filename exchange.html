@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <script>document.documentElement.classList.add("js-enabled");</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Кейс Exchange: как провести пользователя через повышение лимита." />
+    <meta name="theme-color" content="#141414" />
+    <title>Exchange</title>
+    <link rel="icon" href="src/icons/favicon16.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=20260902-1" />
+    <link rel="prefetch" href="./index.html" />
+    <script src="components.js?v=20260902-1" defer></script>
+    <script src="script.js?v=20260902-1" defer></script>
+  </head>
+  <body class="page case-study">
+    <main class="main anchor-top" id="exchange-top">
+      <header class="header" data-component="case-header"></header>
+      <div class="story-content">
+        <h1 class="story-content__title">Exchange</h1>
+        <p class="story-content__description">Как провести пользователя через повышение лимита и KYC, сохранив исходный перевод и контекст операции</p>
+      </div>
+      <div class="before-after">
+        <div
+          class="image-block image-block--tagged"
+          data-full-src="./src/img/e-result@4x.webp"
+        >
+          <div class="image-block__tag">Финальная версия</div>
+          <div class="image-block__container">
+            <img
+              class="image-block__image"
+              src="./src/img/e-result.webp"
+              alt=""
+              width="520"
+              height="420"
+              loading="lazy"
+              decoding="async"
+            >
+          </div>
+        </div>
+      </div>
+      <section class="story-section anchor-section" id="ex-context">
+        <h2 class="story-section__title">Проблема</h2>
+        <p class="story-section__description">Пользователь пытается перевести 15к$, но получает отказ из за лимита в 5к$. Он пугается за деньги, не понимает статус операции и опасается повторной регистрации</p>
+      </section>
+      <section class="story-section anchor-section">
+        <h2 class="story-section__title">Задача</h2>
+        <p class="story-section__description">Снять панику, снизить трение в KYC и завершить перевод</p>
+      </section>
+      <section class="story-section anchor-section" id="ex-approach">
+        <h2 class="story-section__title">Процесс работы</h2>
+        <p class="story-section__description">Провёл конкурентный анализ 7 финансовых сервисов и разобрал сценарий целиком. От превышения лимита до завершения перевода после верификации</p>
+        <p class="story-section__description">Сравнил, как продукты объясняют ограничения, проводят пользователя через KYC, показывают статус проверки и возвращают в исходную операцию. Повторяющиеся проблемы сгруппировал по этапам сценария</p>
+        <div class="story-url-block">
+        <a
+          class="story-url"
+          href="https://docs.google.com/spreadsheets/d/1IzsuJAeZbcdvulhQvx3fBoZG2PLoqZSHW5dQs7WRcTc/edit?gid=456598918#gid=456598918"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span class="story-url__text">Открыть таблицу</span>
+          <span class="story-url__icon-wrap" aria-hidden="true">
+            <svg
+              class="story-url__icon"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
+              <path
+                d="M5.83331 14.1666L14.1666 5.83331M14.1666 12.5V5.83331H7.49998"
+                stroke="currentColor"
+                stroke-width="1.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+        </a>
+      </div>
+      </section>
+      <div
+        class="image-block"
+        data-full-src="./src/img/e-research@4x.webp"
+      >
+        <div class="image-block__container">
+          <img
+            class="image-block__image"
+            src="./src/img/e-research.webp"
+            alt=""
+            width="720"
+            height="609"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+        <div class="image-block__caption">Исследование</div>
+      </div>
+      <div
+        class="image-block"
+        data-full-src="./src/img/e-scenario@4x.webp"
+      >
+        <div class="image-block__container">
+          <img
+            class="image-block__image"
+            src="./src/img/e-scenario.webp"
+            alt=""
+            width="720"
+            height="609"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+        <div class="image-block__caption">Сценарии</div>
+      </div>
+      <section class="story-section">
+        <p class="story-section__description">
+          В анализируемых сценариях повторялись несколько проблем:
+        </p>
+      </section>
+      <div class="block-list">
+        <div class="block-list__item">
+          <div class="block-list__text">Пользователю не всегда понятно, какое ограничение остановило перевод и что произошло с деньгами</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Повышение лимита уводит в отдельный сценарий верификации, при этом контекст перевода может потеряться</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">При отклонении документов не всегда понятно, что именно нужно исправить</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Во время проверки не хватает прозрачного статуса и ожидаемого срока</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">После успешной верификации пользователю может потребоваться заново собирать исходный перевод</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">При выходе из KYC введённые данные могут не сохраняться</div>
+        </div>
+      </div>
+      <section class="story-section anchor-section" id="ex-job-story">
+        <h2 class="story-section__title">Job Story</h2>
+        <p class="story-section__description">
+          Выделил основные jobs, которые охватывают весь контекст:
+        </p>
+      </section>
+      <div class="block-list">
+        <div class="block-list__item">
+          <div class="block-list__text">Когда перевод не проходит, <span class="white-selection">я хочу понять причину, статус операции и состояние денег</span>, чтобы безопасно выбрать следующий шаг</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Когда сумма превышает лимит, <span class="white-selection">я хочу увидеть текущий и будущий лимиты</span>, чтобы оценить пользу повышения</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Когда я начинаю повышение лимита, <span class="white-selection">я хочу видеть подтвержденные и недостающие данные</span>, чтобы заполнить только необходимое без повторной регистрации</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Когда я отправил данные, <span class="white-selection">я хочу видеть этап, срок и результат проверки</span>, чтобы понимать, когда и что делать дальше</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Когда проверка завершена, <span class="white-selection">я хочу вернуться к сохраненному переводу или исправить только отклоненные данные</span>, чтобы завершить операцию без повторного заполнения</div>
+        </div>
+      </div>
+      <section class="story-section anchor-section" id="ex-hypotheses">
+        <h2 class="story-section__title">Гипотезы</h2>
+        <p class="story-section__description">Опираясь на анализ пользовательских барьеров, конкурентных решений и job stories сформулировал гипотезы для ключевых этапов сценария</p>
+      </section>
+      <div class="block-list">
+        <div class="block-list__item">
+          <div class="block-list__text">Если показать причину ошибки и будущий лимит, то больше пользователей начнут сценарий “Повышение лимита”</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Если сохранить сумму и получателя после проверки, больше пользователей повторят перевод</div>
+        </div>
+        <div class="block-list__item">
+          <div class="block-list__text">Если показать этап и срок проверки, пользователи будут реже обращаться в поддержку</div>
+        </div>
+        <div class="block-list__item block-list__item--tagged">
+          <span class="block-list__tag">Идея для эксперимента</span>
+          <div class="block-list__text">Если предложить фиксированное вознаграждение за завершение верификации, увеличится конверсия в завершённую верификацию</div>
+        </div>
+      </div>
+      <section class="story-section anchor-section" id="ex-user-flow">
+        <h2 class="story-section__title">User-flow</h2>
+        <p class="story-section__description">User flow помог определить структуру решения. Верификация должна продолжать сценарий перевода, сохранять прогресс и возвращать пользователя обратно</p>
+      </section>
+      <div
+        class="image-block"
+        data-full-src="./src/img/e-user-flow@4x.webp"
+      >
+        <div class="image-block__container">
+          <img
+            class="image-block__image"
+            src="./src/img/e-user-flow.webp"
+            alt=""
+            width="720"
+            height="609"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+        <div class="image-block__caption">User-flow</div>
+      </div>
+      <section class="story-section anchor-section" id="ex-solution">
+        <h2 class="story-section__title">Экран перевода</h2>
+        <p class="story-section__description">Задача: Объяснить причину остановки перевода и помочь продолжить без риска повторного списания</p>
+        <p class="story-section__description">Показал статус денег, текущий лимит. Добавил переход к повышению лимита</p>
+      </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <div class="action-block" data-component="case-actions"></div>
+      <footer class="footer" data-component="site-footer"></footer>
+    </main>
+    <nav
+      class="page-anchor"
+      aria-label="Навигация по разделам"
+      data-anchor-nav
+      data-component="case-anchor"
+    ></nav>
+  </body>
+</html>
