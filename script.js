@@ -268,6 +268,37 @@ function setupPageReveal() {
     if (pageLifecycle.signal.aborted) return;
     blocks.forEach((block) => observer.observe(block));
   });
+
+  const footer = blocks.find((block) => block.matches(".footer"));
+  let isFooterFallbackActive = Boolean(footer);
+
+  const revealFooterIfNearViewport = () => {
+    if (!isFooterFallbackActive || !footer) return;
+
+    if (footer.classList.contains("is-revealed")) {
+      isFooterFallbackActive = false;
+      return;
+    }
+
+    if (footer.getBoundingClientRect().top > window.innerHeight * 1.25) return;
+
+    revealBlock(footer);
+    observer.unobserve(footer);
+    isFooterFallbackActive = false;
+  };
+
+  const requestFooterReveal = createRafScheduler(revealFooterIfNearViewport);
+
+  window.addEventListener("scroll", requestFooterReveal, {
+    passive: true,
+    signal: pageLifecycle.signal,
+  });
+  window.addEventListener("resize", requestFooterReveal, {
+    passive: true,
+    signal: pageLifecycle.signal,
+  });
+  requestAnimationFrame(requestFooterReveal);
+
   pageLifecycle.signal.addEventListener("abort", () => observer.disconnect(), {
     once: true,
   });
@@ -1009,6 +1040,10 @@ function setupImageCarousels() {
 const MODAL_CLOSE_LUMINANCE_THRESHOLD = 185;
 const MODAL_CLOSE_SAMPLE_AREA_SIZE = 24;
 const MODAL_SWIPE_DISMISS_MIN_DISTANCE = 72;
+const MODAL_ZOOM_DISMISS_MIN_DISTANCE = 96;
+const MODAL_ZOOM_DISMISS_MIN_VELOCITY = 0.65;
+const MODAL_ZOOM_DISMISS_MAX_OFF_AXIS_RATIO = 0.4;
+const MODAL_ZOOM_DISMISS_EDGE_TOLERANCE = 24;
 const MODAL_CAROUSEL_SWIPE_BREAKPOINT = 960;
 const MODAL_CAROUSEL_SWIPE_MIN_DISTANCE = 56;
 const MODAL_CAROUSEL_SWIPE_MAX_OFF_AXIS_RATIO = 0.6;
@@ -1148,8 +1183,16 @@ function setupPreviewZoom() {
     translateY: 0,
     pinchStartDistance: 0,
     pinchStartScale: 1,
+    panStartX: 0,
+    panStartY: 0,
+    panStartTime: 0,
     panLastX: 0,
     panLastY: 0,
+    panLastTime: 0,
+    panVelocityX: 0,
+    panVelocityY: 0,
+    canDismissUp: false,
+    canDismissDown: false,
     isPinching: false,
     isPanning: false,
   };
@@ -1166,6 +1209,92 @@ function setupPreviewZoom() {
 
   const getTouchDistance = (touchA, touchB) =>
     Math.hypot(touchA.clientX - touchB.clientX, touchA.clientY - touchB.clientY);
+
+  const startModalImagePan = (touch, timeStamp) => {
+    const imageRect = modalImage.getBoundingClientRect();
+
+    modalImageZoomState.isPanning = true;
+    modalImageZoomState.isPinching = false;
+    modalImageZoomState.panStartX = touch.clientX;
+    modalImageZoomState.panStartY = touch.clientY;
+    modalImageZoomState.panStartTime = timeStamp;
+    modalImageZoomState.panLastX = touch.clientX;
+    modalImageZoomState.panLastY = touch.clientY;
+    modalImageZoomState.panLastTime = timeStamp;
+    modalImageZoomState.panVelocityX = 0;
+    modalImageZoomState.panVelocityY = 0;
+    modalImageZoomState.canDismissUp =
+      imageRect.bottom <= window.innerHeight + MODAL_ZOOM_DISMISS_EDGE_TOLERANCE;
+    modalImageZoomState.canDismissDown =
+      imageRect.top >= -MODAL_ZOOM_DISMISS_EDGE_TOLERANCE;
+  };
+
+  const updateModalImagePan = (touch, timeStamp) => {
+    const deltaX = touch.clientX - modalImageZoomState.panLastX;
+    const deltaY = touch.clientY - modalImageZoomState.panLastY;
+    const elapsed = Math.max(timeStamp - modalImageZoomState.panLastTime, 1);
+    const velocityWeight = 0.75;
+
+    modalImageZoomState.translateX += deltaX;
+    modalImageZoomState.translateY += deltaY;
+    modalImageZoomState.panVelocityX =
+      modalImageZoomState.panVelocityX * (1 - velocityWeight) +
+      (deltaX / elapsed) * velocityWeight;
+    modalImageZoomState.panVelocityY =
+      modalImageZoomState.panVelocityY * (1 - velocityWeight) +
+      (deltaY / elapsed) * velocityWeight;
+    modalImageZoomState.panLastX = touch.clientX;
+    modalImageZoomState.panLastY = touch.clientY;
+    modalImageZoomState.panLastTime = timeStamp;
+  };
+
+  const shouldDismissZoomedImage = (event) => {
+    if (
+      event.type !== "touchend" ||
+      !isMobileImageModal() ||
+      !modalImageZoomState.isPanning ||
+      modalImageZoomState.scale <= 1
+    ) {
+      return false;
+    }
+
+    const touch = event.changedTouches[0];
+    if (!touch) return false;
+
+    const deltaX = touch.clientX - modalImageZoomState.panStartX;
+    const deltaY = touch.clientY - modalImageZoomState.panStartY;
+    const horizontalDistance = Math.abs(deltaX);
+    const verticalDistance = Math.abs(deltaY);
+    const elapsed = Math.max(event.timeStamp - modalImageZoomState.panStartTime, 1);
+    const averageVelocity = verticalDistance / elapsed;
+    const releaseVelocity = Math.abs(modalImageZoomState.panVelocityY);
+    const isVerticalFlick =
+      verticalDistance >= MODAL_ZOOM_DISMISS_MIN_DISTANCE &&
+      horizontalDistance <=
+        verticalDistance * MODAL_ZOOM_DISMISS_MAX_OFF_AXIS_RATIO;
+    const isFastEnough =
+      Math.max(averageVelocity, releaseVelocity) >=
+      MODAL_ZOOM_DISMISS_MIN_VELOCITY;
+    const velocityMatchesDirection =
+      modalImageZoomState.panVelocityY === 0 ||
+      Math.sign(modalImageZoomState.panVelocityY) === Math.sign(deltaY);
+    const releaseIsVertical =
+      Math.abs(modalImageZoomState.panVelocityX) <=
+      Math.abs(modalImageZoomState.panVelocityY) *
+        MODAL_ZOOM_DISMISS_MAX_OFF_AXIS_RATIO;
+    const isAtDismissEdge =
+      deltaY < 0
+        ? modalImageZoomState.canDismissUp
+        : modalImageZoomState.canDismissDown;
+
+    return (
+      isVerticalFlick &&
+      isFastEnough &&
+      velocityMatchesDirection &&
+      releaseIsVertical &&
+      isAtDismissEdge
+    );
+  };
 
   const applyModalImageZoomTransform = () => {
     const { scale, translateX, translateY } = modalImageZoomState;
@@ -1190,8 +1319,16 @@ function setupPreviewZoom() {
     modalImageZoomState.translateY = 0;
     modalImageZoomState.pinchStartDistance = 0;
     modalImageZoomState.pinchStartScale = 1;
+    modalImageZoomState.panStartX = 0;
+    modalImageZoomState.panStartY = 0;
+    modalImageZoomState.panStartTime = 0;
     modalImageZoomState.panLastX = 0;
     modalImageZoomState.panLastY = 0;
+    modalImageZoomState.panLastTime = 0;
+    modalImageZoomState.panVelocityX = 0;
+    modalImageZoomState.panVelocityY = 0;
+    modalImageZoomState.canDismissUp = false;
+    modalImageZoomState.canDismissDown = false;
     modalImageZoomState.isPinching = false;
     modalImageZoomState.isPanning = false;
     applyModalImageZoomTransform();
@@ -1736,10 +1873,7 @@ function setupPreviewZoom() {
       ) {
         swipeDismissState.active = false;
         swipeDismissState.carouselNavigation = false;
-        modalImageZoomState.isPanning = true;
-        modalImageZoomState.isPinching = false;
-        modalImageZoomState.panLastX = event.touches[0].clientX;
-        modalImageZoomState.panLastY = event.touches[0].clientY;
+        startModalImagePan(event.touches[0], event.timeStamp);
         return;
       }
 
@@ -1795,16 +1929,17 @@ function setupPreviewZoom() {
       ) {
         if (event.cancelable) event.preventDefault();
         const touch = event.touches[0];
-        modalImageZoomState.translateX += touch.clientX - modalImageZoomState.panLastX;
-        modalImageZoomState.translateY += touch.clientY - modalImageZoomState.panLastY;
-        modalImageZoomState.panLastX = touch.clientX;
-        modalImageZoomState.panLastY = touch.clientY;
+        updateModalImagePan(touch, event.timeStamp);
         applyModalImageZoomTransform();
         return;
       }
 
       if (!swipeDismissState.active || event.touches.length !== 1) return;
       if (modalImageZoomState.scale > 1) return;
+
+      if (isMobileImageModal() && event.cancelable) {
+        event.preventDefault();
+      }
 
       const touch = event.touches[0];
       const deltaX = touch.clientX - swipeDismissState.startX;
@@ -1844,14 +1979,16 @@ function setupPreviewZoom() {
       event.touches.length === 1 &&
       modalImageZoomState.scale > 1
     ) {
-      modalImageZoomState.isPinching = false;
-      modalImageZoomState.isPanning = true;
-      modalImageZoomState.panLastX = event.touches[0].clientX;
-      modalImageZoomState.panLastY = event.touches[0].clientY;
+      startModalImagePan(event.touches[0], event.timeStamp);
       return;
     }
 
     if (event.touches.length === 0) {
+      if (shouldDismissZoomedImage(event)) {
+        closeModal();
+        return;
+      }
+
       modalImageZoomState.isPinching = false;
       modalImageZoomState.isPanning = false;
       swipeDismissState.active = false;
@@ -2019,32 +2156,10 @@ const centerProjectCard = (projectPageName) => {
 
   if (!projectCard) return;
 
-  const centerCard = () => {
-    if (!projectCard.isConnected || getRenderedPageName() !== "index.html") return;
-
-    projectCard.scrollIntoView({
-      behavior: "auto",
-      block: "center",
-      inline: "nearest",
-    });
-  };
-
-  centerCard();
-
-  // The projects section keeps its existing reveal animation. Re-center once
-  // its transform finishes so the final position remains exact.
-  const projectsSection = projectCard.closest(".projects.reveal-block");
-  if (!projectsSection) return;
-
-  const handleRevealEnd = (event) => {
-    if (event.target !== projectsSection || event.propertyName !== "transform") return;
-
-    projectsSection.removeEventListener("transitionend", handleRevealEnd);
-    centerCard();
-  };
-
-  projectsSection.addEventListener("transitionend", handleRevealEnd, {
-    signal: pageLifecycle.signal,
+  projectCard.scrollIntoView({
+    behavior: "auto",
+    block: "center",
+    inline: "nearest",
   });
 };
 
@@ -2140,13 +2255,16 @@ const renderCachedPage = async (pageName, { updateHistory = false } = {}) => {
       window.history.replaceState({ page: pageName }, "", getPageUrl(pageName));
     }
 
-    initPortfolioPage();
-
     if (pageName === "index.html" && previousPageName !== "index.html") {
+      // Measure and position the fully laid-out cached page before its first
+      // visible frame. The reveal animation can then run without a late jump.
+      document.body.classList.add("reveal-ready");
       centerProjectCard(previousPageName);
     } else {
       window.scrollTo(0, 0);
     }
+
+    initPortfolioPage();
   } finally {
     isPageNavigationRendering = false;
   }
