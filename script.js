@@ -182,6 +182,8 @@ const nonBreakingWordPattern = new RegExp(
   "giu"
 );
 
+const nonBreakingDashPattern = /(\S)\s+–\s+(?=\S)/gu;
+
 const handleInitialHashScroll = () => {
   const { hash } = window.location;
   if (!hash) return;
@@ -436,10 +438,16 @@ function setupNonBreakingShortWords() {
   let currentNode = textWalker.nextNode();
 
   while (currentNode) {
-    currentNode.textContent = currentNode.textContent.replace(
-      nonBreakingWordPattern,
-      (_, prefix, word) => `${prefix}${word}${NON_BREAKING_SPACE}`
-    );
+    currentNode.textContent = currentNode.textContent
+      .replace(
+        nonBreakingWordPattern,
+        (_, prefix, word) => `${prefix}${word}${NON_BREAKING_SPACE}`
+      )
+      .replace(
+        nonBreakingDashPattern,
+        (_, previousCharacter) =>
+          `${previousCharacter}${NON_BREAKING_SPACE}–${NON_BREAKING_SPACE}`
+      );
     currentNode = textWalker.nextNode();
   }
 }
@@ -662,7 +670,11 @@ function setupPageAnchorNav() {
       const target = document.getElementById(targetId);
       if (!target) return null;
 
-      return { link, target, targetId };
+      const heading =
+        target.querySelector(".story-section__title, .story-content__title, h1, h2, h3") ||
+        target;
+
+      return { link, target, targetId, heading };
     })
     .filter(Boolean);
 
@@ -685,28 +697,22 @@ function setupPageAnchorNav() {
   };
 
   const getCurrentItem = () => {
-    const threshold = window.scrollY + PAGE_ANCHOR_STICKY_TOP + 80;
+    const viewportCenter =
+      (window.innerHeight || document.documentElement.clientHeight || 800) / 2;
     let currentItem = items[0];
 
     items.forEach((item) => {
-      if (item.target.offsetTop <= threshold) {
+      if (item.heading.getBoundingClientRect().top <= viewportCenter) {
         currentItem = item;
       }
     });
 
     if (items.length > 1) {
       const lastItem = items[items.length - 1];
-      const lastTarget = lastItem.target;
-
-      const lastHeading =
-        lastTarget.querySelector(".story-section__title, .story-content__title, h1, h2, h3") ||
-        lastTarget;
-
-      const centerThreshold = (window.innerHeight || 800) / 2;
       const reachedPageEnd =
         window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 1;
 
-      if (lastHeading.getBoundingClientRect().top <= centerThreshold || reachedPageEnd) {
+      if (reachedPageEnd) {
         currentItem = lastItem;
       }
     }

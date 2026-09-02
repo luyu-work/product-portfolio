@@ -25,6 +25,9 @@ const CASE_COMPONENTS = {
     ["ex-hypotheses", "Гипотезы"],
     ["ex-user-flow", "User-flow"],
     ["ex-solution", "Решение"],
+    ["ex-prototype", "Прототип"],
+    ["ex-feedback", "Обратная связь"],
+    ["ex-reflection", "Рефлексия"],
   ],
 };
 
