@@ -689,6 +689,7 @@ html.js-enabled .reveal-block.is-revealed {
 .page-anchor__item {
   width: 100%;
   min-height: 20px;
+  padding-top: 1.3px;
   padding-left: 16px;
   display: inline-flex;
   justify-content: flex-start;

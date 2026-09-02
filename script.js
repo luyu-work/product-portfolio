@@ -1999,6 +1999,42 @@ const getRenderedPageName = () => {
   return "index.html";
 };
 
+const centerProjectCard = (projectPageName) => {
+  const projectCard = document.querySelector(
+    `a.project-card[href="./${projectPageName}"]`
+  );
+
+  if (!projectCard) return;
+
+  const centerCard = () => {
+    if (!projectCard.isConnected || getRenderedPageName() !== "index.html") return;
+
+    projectCard.scrollIntoView({
+      behavior: "auto",
+      block: "center",
+      inline: "nearest",
+    });
+  };
+
+  centerCard();
+
+  // The projects section keeps its existing reveal animation. Re-center once
+  // its transform finishes so the final position remains exact.
+  const projectsSection = projectCard.closest(".projects.reveal-block");
+  if (!projectsSection) return;
+
+  const handleRevealEnd = (event) => {
+    if (event.target !== projectsSection || event.propertyName !== "transform") return;
+
+    projectsSection.removeEventListener("transitionend", handleRevealEnd);
+    centerCard();
+  };
+
+  projectsSection.addEventListener("transitionend", handleRevealEnd, {
+    signal: pageLifecycle.signal,
+  });
+};
+
 const warmImageCacheForHtml = (html) => {
   const parsed = new DOMParser().parseFromString(html, "text/html");
 
@@ -2071,6 +2107,7 @@ const renderCachedPage = async (pageName, { updateHistory = false } = {}) => {
   isPageNavigationRendering = true;
 
   try {
+    const previousPageName = getRenderedPageName();
     const html = await ensurePageCached(pageName);
     const parsed = new DOMParser().parseFromString(html, "text/html");
     const preservedModal = document.querySelector(".image-modal");
@@ -2084,8 +2121,6 @@ const renderCachedPage = async (pageName, { updateHistory = false } = {}) => {
       document.body.append(preservedModal);
     }
 
-    window.scrollTo(0, 0);
-
     if (updateHistory === "push") {
       window.history.pushState({ page: pageName }, "", getPageUrl(pageName));
     } else if (updateHistory === "replace") {
@@ -2093,6 +2128,12 @@ const renderCachedPage = async (pageName, { updateHistory = false } = {}) => {
     }
 
     initPortfolioPage();
+
+    if (pageName === "index.html" && previousPageName !== "index.html") {
+      centerProjectCard(previousPageName);
+    } else {
+      window.scrollTo(0, 0);
+    }
   } finally {
     isPageNavigationRendering = false;
   }
@@ -2101,6 +2142,10 @@ const renderCachedPage = async (pageName, { updateHistory = false } = {}) => {
 function setupPageNavigation() {
   if (isPageNavigationReady) return;
   isPageNavigationReady = true;
+
+  if ("scrollRestoration" in window.history) {
+    window.history.scrollRestoration = "manual";
+  }
 
   document.addEventListener(
     "click",
