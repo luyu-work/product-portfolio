@@ -438,15 +438,19 @@ function setupNonBreakingShortWords() {
   let currentNode = textWalker.nextNode();
 
   while (currentNode) {
+    const keepDashBreakable = Boolean(
+      currentNode.parentElement?.closest(".home__title")
+    );
+
     currentNode.textContent = currentNode.textContent
       .replace(
         nonBreakingWordPattern,
         (_, prefix, word) => `${prefix}${word}${NON_BREAKING_SPACE}`
       )
-      .replace(
-        nonBreakingDashPattern,
-        (_, previousCharacter) =>
-          `${previousCharacter}${NON_BREAKING_SPACE}–${NON_BREAKING_SPACE}`
+      .replace(nonBreakingDashPattern, (_, previousCharacter) =>
+        keepDashBreakable
+          ? `${previousCharacter} – `
+          : `${previousCharacter}${NON_BREAKING_SPACE}–${NON_BREAKING_SPACE}`
       );
     currentNode = textWalker.nextNode();
   }
@@ -1169,11 +1173,15 @@ function setupPreviewZoom() {
     if (scale === 1 && translateX === 0 && translateY === 0) {
       modalImage.style.transform = "";
       modalImage.classList.remove("is-zoomed");
+      requestModalCloseContrastUpdate();
+      requestModalNavigationPositionUpdate();
       return;
     }
 
     modalImage.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
     modalImage.classList.add("is-zoomed");
+    requestModalCloseContrastUpdate();
+    requestModalNavigationPositionUpdate();
   };
 
   const resetModalImageZoom = () => {
@@ -1205,11 +1213,8 @@ function setupPreviewZoom() {
     const imageRect = modalImage.getBoundingClientRect();
     if (!imageRect.width || !imageRect.height) return;
 
-    const previousOffset = Math.max(0, imageRect.left);
-    const nextOffset = Math.max(
-      0,
-      window.innerWidth - imageRect.right
-    );
+    const previousOffset = imageRect.left;
+    const nextOffset = window.innerWidth - imageRect.right;
     const verticalCenter = imageRect.top + imageRect.height / 2;
 
     modalPrevious.style.left = `${Math.round(previousOffset)}px`;
@@ -1217,6 +1222,10 @@ function setupPreviewZoom() {
     modalNext.style.right = `${Math.round(nextOffset)}px`;
     modalNext.style.top = `${Math.round(verticalCenter)}px`;
   };
+
+  const requestModalNavigationPositionUpdate = createRafScheduler(
+    updateModalNavigationPosition
+  );
 
   const prefersReducedData = () => {
     const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
@@ -1276,6 +1285,10 @@ function setupPreviewZoom() {
       typeof luminance === "number" && luminance >= MODAL_CLOSE_LUMINANCE_THRESHOLD
     );
   };
+
+  const requestModalCloseContrastUpdate = createRafScheduler(
+    updateModalCloseContrast
+  );
 
   const updateModalCloseChrome = () => {
     if (!modal.classList.contains("is-active")) {
